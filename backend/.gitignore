@@ -1,2 +1,12 @@
 /.venv
 .env
+/orodha_backend/__pycache__
+/orodha_backend/tenants/__pycache__
+/orodha_backend/tenants/migrations/__pycache__
+/orodha_backend/inventory/__pycache__
+/orodha_backend/inventory/migrations/__pycache__
+/orodha_backend/sales/__pycache__
+/orodha_backend/sales/migrations/__pycache__
+/orodha_backend/accounts/__pycache__
+/orodha_backend/accounts/migrations/__pycache__
+demo_tenant.py
