@@ -14,7 +14,8 @@ class Client(TenantMixin):
     )
 
     logo = models.CharField(
-        max_length=255
+        max_length=255,
+        blank=True
     )
 
     tagline = models.CharField(

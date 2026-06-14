@@ -98,6 +98,11 @@ class InventoryMovement(models.Model):
     )
 
     book_item = models.ForeignKey(
+        BookItem,
+        on_delete=models.CASCADE
+    )
+
+    from_hub = models.ForeignKey(
         Hub,
         null=True,
         blank=True,

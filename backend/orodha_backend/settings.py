@@ -47,6 +47,7 @@ TENANT_APPS = [
     'django.contrib.admin',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'orodha_backend.accounts',
     'orodha_backend.inventory',
     'orodha_backend.sales',
@@ -153,6 +154,7 @@ REST_FRAMEWORK = {
 }
 
 # Tenant configuration
+PUBLIC_SCHEMA_NAME = 'public'
 TENANT_MODEL = 'tenants.Client'
 TENANT_DOMAIN_MODEL = 'tenants.Domain'
 
