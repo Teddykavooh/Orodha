@@ -2,6 +2,4 @@ node_modules/
 .env
 /dist
 
-/src
-index.html
-package.json
+IMPLEMENTATION_GUIDE.md

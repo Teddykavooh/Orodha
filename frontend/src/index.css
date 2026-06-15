@@ -1,0 +1,7 @@
+@import "tailwindcss";
+@config "../tailwind.config.cjs";
+
+/* Basic app styles; extend as needed */
+body {
+  @apply bg-white text-gray-900;
+}
