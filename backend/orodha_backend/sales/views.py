@@ -1,0 +1,31 @@
+from rest_framework import permissions, viewsets
+
+from .models import SaleLog
+from .permissions import SaleLogPermission
+from .serializers import SaleLogSerializer
+
+
+class SaleLogViewSet(viewsets.ModelViewSet):
+    """
+    CRUD endpoint for tenant sale records.
+
+    select_related() keeps list/detail responses efficient by fetching the
+    linked BookItem and salesperson in the same query.
+    """
+
+    queryset = SaleLog.objects.select_related("book_item", "salesperson").order_by("id")
+    serializer_class = SaleLogSerializer
+    permission_classes = [permissions.IsAuthenticated, SaleLogPermission]
+
+    def get_queryset(self):
+        queryset = SaleLog.objects.select_related("book_item", "salesperson").order_by("id")
+        user = self.request.user
+        role = getattr(user, "role", None)
+
+        if role == "WHOLESALER_ADMIN":
+            return queryset
+        if role == "SALES_MANAGER" and getattr(user, "hub_id", None):
+            return queryset.filter(salesperson__hub_id=user.hub_id)
+        if role == "SALESPERSON":
+            return queryset.filter(salesperson=user)
+        return queryset.none()
