@@ -1,24 +1,32 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import api from '../../services/api'
 
+const savedToken = localStorage.getItem('token') || null
+api.setToken(savedToken)
+
 export const login = createAsyncThunk('auth/login', async ({ username, password }, thunkAPI) => {
   const res = await api.post('/auth/login/', { username, password })
   const token = res.data.token
   api.setToken(token)
-  // fetch profile
-  const me = await api.get('/auth/me/')
-  return { token, user: me.data }
+  localStorage.setItem('token', token)
+  return { token, user: res.data.user }
 })
 
 export const fetchMe = createAsyncThunk('auth/fetchMe', async (_, thunkAPI) => {
-  const res = await api.get('/auth/me/')
-  return res.data
+  try {
+    const res = await api.get('/auth/me/')
+    return res.data
+  } catch (err) {
+    localStorage.removeItem('token')
+    api.setToken(null)
+    return thunkAPI.rejectWithValue(err?.response?.data || 'Unable to load current user')
+  }
 })
 
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
-    token: localStorage.getItem('token') || null,
+    token: savedToken,
     user: null,
     status: 'idle',
     error: null,
@@ -46,8 +54,19 @@ const authSlice = createSlice({
         state.status = 'failed'
         state.error = action.error.message
       })
+      .addCase(fetchMe.pending, (state) => {
+        state.status = 'loading'
+      })
       .addCase(fetchMe.fulfilled, (state, action) => {
+        state.status = 'succeeded'
         state.user = action.payload
+        state.error = null
+      })
+      .addCase(fetchMe.rejected, (state, action) => {
+        state.status = 'failed'
+        state.token = null
+        state.user = null
+        state.error = action.payload || action.error.message
       })
   },
 })

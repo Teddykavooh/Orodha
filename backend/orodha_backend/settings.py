@@ -16,6 +16,20 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
+def env_bool(name, default=False):
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def env_list(name, default=None):
+    value = os.getenv(name)
+    if not value:
+        return default or []
+    return [item.strip() for item in value.split(",") if item.strip()]
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -27,9 +41,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG')
+DEBUG = env_bool('DEBUG')
 
-ALLOWED_HOSTS = [os.getenv('DJANGO_ALLOWED_HOSTS')]
+ALLOWED_HOSTS = env_list('DJANGO_ALLOWED_HOSTS', ['localhost', '127.0.0.1'])
 
 
 # Application definition
@@ -157,6 +171,22 @@ REST_FRAMEWORK = {
 PUBLIC_SCHEMA_NAME = 'public'
 TENANT_MODEL = 'tenants.Client'
 TENANT_DOMAIN_MODEL = 'tenants.Domain'
+
+# Public schema routing and tenant fallback
+# When no tenant is found for the incoming hostname, serve the public
+# schema URLconf so endpoints like tenant registration work on the
+# public schema (e.g. POST /api/tenants/register/).
+PUBLIC_SCHEMA_URLCONF = 'orodha_backend.urls'
+SHOW_PUBLIC_IF_NO_TENANT_FOUND = True
+
+# (Optional) Legacy prefix list left in place for reference; django-tenants
+# uses PUBLIC_SCHEMA_URLCONF and SHOW_PUBLIC_IF_NO_TENANT_FOUND to serve
+# public endpoints when no tenant matches the hostname.
+TENANT_UNAWARE_PREFIXES = (
+    '/api/tenants/register/',
+    '/api/auth/login/',
+    '/api/auth/register/',
+)
 
 # Custom user
 AUTH_USER_MODEL = 'accounts.UserProfile'
