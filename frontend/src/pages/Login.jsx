@@ -26,12 +26,12 @@ export default function Login() {
     try {
       const res = await dispatch(login({ organisation, username, password })).unwrap()
 
-      console.log(res);
+      // console.log(res);
       // console.log("This is me domain: ", res.tenant.tenant_domain);
 
       localStorage.setItem("token", res.token);
 
-      localStorage.setItem("tenant_domain", res.tenant.tenant.domain)
+      localStorage.setItem("tenant_domain", res.tenant.tenant_domain)
 
       const roleRoutes = {
         WHOLESALER_ADMIN: "/dashboard",
@@ -59,8 +59,9 @@ export default function Login() {
       // else {
       //   navigate("/sales");
       // }
-      
+
       navigate(`${destination}`)
+      // console.log("Me link: ", `${destination}`)
 
     } catch (err) {
       setError(err?.message || String(err));

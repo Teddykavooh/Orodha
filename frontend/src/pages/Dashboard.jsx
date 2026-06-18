@@ -30,6 +30,9 @@ export default function Dashboard() {
   const products = useSelector(state => state.products.items)
   const productsStatus = useSelector(state => state.products.status)
 
+  // console.log("My token: ", localStorage.getItem("token"))
+  // console.log("My domain dashboard: ", localStorage.getItem("tenant_domain"))
+
   // Fetch all data on component mount
   useEffect(() => {
     dispatch(fetchSales())
