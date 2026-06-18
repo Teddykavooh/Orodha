@@ -19,6 +19,7 @@ class LoginView(APIView):
 
     Request body:
         {
+            "organisation: "domain"
             "username": "admin",
             "password": "secret-password"
         }
@@ -85,12 +86,15 @@ class LoginView(APIView):
                 user=user
             )
 
+            # print("Logging in user domain", tenant.domains.first().domain)
+
             return Response(
                 {
                     "token": token.key,
                     "tenant": {
                         "schema_name": tenant.schema_name,
                         "business_name": tenant.business_name,
+                        "tenant_domain": tenant.domains.first().domain,
                     },
                     "user": UserProfileSerializer(user).data
                 }

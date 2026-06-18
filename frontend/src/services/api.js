@@ -14,7 +14,16 @@ function setToken(token) {
   }
 }
 
+function setTenant(schemaName) {
+  if (schemaName) {
+    instance.defaults.headers.common["X-Tenant"] = schemaName;
+  } else {
+    delete instance.defaults.headers.common["X-Tenant"];
+  }
+}
+
 setToken(localStorage.getItem("token"));
+setTenant(localStorage.getItem("tenant_schema"));
 
 export default {
   get: (url, opts) => instance.get(url, opts),
@@ -23,4 +32,5 @@ export default {
   patch: (url, data, opts) => instance.patch(url, data, opts),
   delete: (url, opts) => instance.delete(url, opts),
   setToken,
+  setTenant,
 };

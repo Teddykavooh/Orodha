@@ -25,16 +25,43 @@ export default function Login() {
     setLoading(true);
     try {
       const res = await dispatch(login({ organisation, username, password })).unwrap()
-      if (res.user.role === "WHOLESALER_ADMIN") {
-        // navigate("/dashboard/admin");
-        navigate("/dashboard");
-      }
-      else if (res.user.role === "SALES_MANAGER") {
-        navigate("/dashboard/manager");
-      }
-      else {
-        navigate("/dashboard/sales");
-      }
+
+      console.log(res);
+      // console.log("This is me domain: ", res.tenant.tenant_domain);
+
+      localStorage.setItem("token", res.token);
+
+      localStorage.setItem("tenant_domain", res.tenant.tenant.domain)
+
+      const roleRoutes = {
+        WHOLESALER_ADMIN: "/dashboard",
+        SALES_MANAGER: "/inventory",
+        SALESPERSON: "/sales",
+      };
+
+      const destination =
+        roleRoutes[res.user.role] || "/";
+
+      const protocol = window.location.protocol;
+      const port = window.location.port
+        ? `:${window.location.port}`
+        : "";
+      const host = window.location.hostname
+
+      // console.log("me link: ", `${protocol}//${host}${port}${destination}`)
+      // window.location.href = `${protocol}//${host}${port}${destination}`;
+      // if (res.user.role === "WHOLESALER_ADMIN") {
+      //   navigate("/dashboard");
+      // }
+      // else if (res.user.role === "SALES_MANAGER") {
+      //   navigate("/inventory");
+      // }
+      // else {
+      //   navigate("/sales");
+      // }
+      
+      navigate(`${destination}`)
+
     } catch (err) {
       setError(err?.message || String(err));
     } finally {
@@ -55,7 +82,7 @@ export default function Login() {
               <Input
                 value={organisation}
                 onChange={(e) => setOrganisation(e.target.value)}
-                placeholder="Enter Domain e.g. abcbooks"
+                placeholder="Enter Domain e.g. acmecorp"
                 disabled={loading}
               />
             </div>

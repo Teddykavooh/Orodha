@@ -3,13 +3,22 @@ import api from '../../services/api'
 
 const savedToken = localStorage.getItem('token') || null
 api.setToken(savedToken)
+const savedTenant = localStorage.getItem("tenant_schema");
+api.setTenant(savedTenant);
 
 export const login = createAsyncThunk('auth/login', async ({ organisation, username, password }, thunkAPI) => {
   const res = await api.post('/auth/login/', { organisation, username, password })
   const token = res.data.token
+  const tenantSchema = res.data.tenant.schema_name;
+
+  // updates Axios immediately
   api.setToken(token)
+  api.setTenant(tenantSchema);
+
   localStorage.setItem('token', token)
-  return { token, user: res.data.user }
+  localStorage.setItem("tenant_schema", tenantSchema);
+  // return { token, user: res.data.user }
+  return res.data
 })
 
 export const fetchMe = createAsyncThunk('auth/fetchMe', async (_, thunkAPI) => {
@@ -33,10 +42,14 @@ const authSlice = createSlice({
   },
   reducers: {
     logout(state) {
-      state.token = null
-      state.user = null
-      localStorage.removeItem('token')
-      api.setToken(null)
+      state.token = null;
+      state.user = null;
+
+      localStorage.removeItem("token");
+      localStorage.removeItem("tenant_schema");
+
+      api.setToken(null);
+      api.setTenant(null);
     },
   },
   extraReducers: (builder) => {
