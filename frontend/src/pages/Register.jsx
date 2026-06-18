@@ -44,8 +44,13 @@ export default function Register() {
         admin_password: adminPassword,
       });
       const tenantDomain = res.data?.tenant?.domain || domain;
-      window.location.assign(tenantLoginUrl(tenantDomain, adminUsername));
+      // window.location.assign(tenantLoginUrl(tenantDomain, adminUsername));
       setMsg("Tenant registered. Check tenant domain to continue.");
+
+      // after registration save organisation or domain for login
+      localStorage.setItem("organisation", schema);
+      navigate("/login");
+
       setName("");
       setSchema("");
       setBusiness("");
@@ -82,7 +87,7 @@ export default function Register() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Tenant domain</label>
-              <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="e.g., acmecorp.localhost" disabled={loading} />
+              <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="e.g., acmecorp" disabled={loading} />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Admin username</label>

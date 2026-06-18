@@ -15,9 +15,23 @@ class UserProfile(AbstractUser):
         choices=ROLE_CHOICES
     )
 
+    # Disable accounts reliance to hub, will add hub accounts instead
     hub = models.ForeignKey(
         "inventory.Hub",
         null=True,
         blank=True,
         on_delete=models.SET_NULL
     )
+
+    # class UserHubAssignment(models.Model):
+    # user = models.ForeignKey(
+    #     settings.AUTH_USER_MODEL,
+    #     on_delete=models.CASCADE
+    # )
+
+    # hub = models.ForeignKey(
+    #     "inventory.Hub",
+    #     on_delete=models.CASCADE
+    # )
+
+    # is_primary = models.BooleanField(default=True)

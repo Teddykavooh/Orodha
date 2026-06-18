@@ -18,6 +18,13 @@ class Client(TenantMixin):
         blank=True
     )
 
+    # for later
+    # logo = models.ImageField(
+    #     upload_to="tenant_logos/",
+    #     blank=True,
+    #     null=True
+    # )
+
     tagline = models.CharField(
         max_length=255,
         blank=True
@@ -51,6 +58,7 @@ class Client(TenantMixin):
         auto_now=True
     )
 
+    # default true, schema will be automatically created and synced when it is saved
     auto_create_schema = True
 
 

@@ -14,6 +14,7 @@ import { Button } from '../components/ui/Button'
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [organisation, setOrganisation] = useState(localStorage.getItem("organisation") || "")
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch()
@@ -23,8 +24,17 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await dispatch(login({ username, password })).unwrap()
-      navigate("/dashboard");
+      const res = await dispatch(login({ organisation, username, password })).unwrap()
+      if (res.user.role === "WHOLESALER_ADMIN") {
+        // navigate("/dashboard/admin");
+        navigate("/dashboard");
+      }
+      else if (res.user.role === "SALES_MANAGER") {
+        navigate("/dashboard/manager");
+      }
+      else {
+        navigate("/dashboard/sales");
+      }
     } catch (err) {
       setError(err?.message || String(err));
     } finally {
@@ -40,6 +50,15 @@ export default function Login() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Organization</label>
+              <Input
+                value={organisation}
+                onChange={(e) => setOrganisation(e.target.value)}
+                placeholder="Enter Domain e.g. abcbooks"
+                disabled={loading}
+              />
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
               <Input

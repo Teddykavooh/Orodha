@@ -1,3 +1,5 @@
+import os
+
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django_tenants.utils import tenant_context
@@ -22,12 +24,18 @@ class TenantRegistrationSerializer(serializers.Serializer):
     schema_name = serializers.SlugField(max_length=63)
     name = serializers.CharField(max_length=255)
     business_name = serializers.CharField(max_length=255)
-    logo = serializers.CharField(max_length=255)
+    logo = serializers.CharField(max_length=255, required=False, allow_blank=True)
+    # for later
+    # logo = serializers.ImageField(
+    #     required=False,
+    #     allow_null=True
+    # )
     tagline = serializers.CharField(max_length=255, required=False, allow_blank=True)
     primary_color = serializers.CharField(max_length=7, required=False)
     secondary_color = serializers.CharField(max_length=7, required=False)
     accent_color = serializers.CharField(max_length=7, required=False)
-    domain = serializers.CharField(max_length=253)
+    # fine tune domain entry
+    domain = serializers.SlugField(max_length=63)
     admin_username = serializers.CharField(max_length=150)
     admin_email = serializers.EmailField(required=False, allow_blank=True)
     admin_password = serializers.CharField(write_only=True, min_length=8)
@@ -59,8 +67,11 @@ class TenantRegistrationSerializer(serializers.Serializer):
         belongs to. Duplicate domains would make routing ambiguous.
         """
 
-        value = value.lower()
-        if Domain.objects.filter(domain=value).exists():
+        value = value.lower().strip()
+
+        full_domain = f"{value}.{os.getenv('TENANT_BASE_DOMAIN')}"
+
+        if Domain.objects.filter(domain=full_domain).exists():
             raise serializers.ValidationError("This domain is already registered.")
         return value
 
@@ -77,7 +88,13 @@ class TenantRegistrationSerializer(serializers.Serializer):
         admin_username = validated_data.pop("admin_username")
         admin_email = validated_data.pop("admin_email", "")
         admin_password = validated_data.pop("admin_password")
-        domain_name = validated_data.pop("domain")
+        # automate domain registration
+        domain_slug =  validated_data.pop("domain")
+        domain_name = (
+            f"{domain_slug}.{os.getenv('TENANT_BASE_DOMAIN')}"
+        )
+        
+
 
         tenant = Client.objects.create(**validated_data)
         domain = Domain.objects.create(
@@ -86,6 +103,7 @@ class TenantRegistrationSerializer(serializers.Serializer):
             is_primary=True,
         )
 
+        # schema switching
         User = get_user_model()
         with tenant_context(tenant):
             admin = User.objects.create_user(
@@ -94,7 +112,8 @@ class TenantRegistrationSerializer(serializers.Serializer):
                 password=admin_password,
                 role="WHOLESALER_ADMIN",
                 is_staff=True,
-                is_superuser=True,
+                # let role-based permissions control access, no full Django superuser privileges
+                is_superuser=False,
             )
 
         return {

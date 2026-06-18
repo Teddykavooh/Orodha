@@ -4,8 +4,8 @@ import api from '../../services/api'
 const savedToken = localStorage.getItem('token') || null
 api.setToken(savedToken)
 
-export const login = createAsyncThunk('auth/login', async ({ username, password }, thunkAPI) => {
-  const res = await api.post('/auth/login/', { username, password })
+export const login = createAsyncThunk('auth/login', async ({ organisation, username, password }, thunkAPI) => {
+  const res = await api.post('/auth/login/', { organisation, username, password })
   const token = res.data.token
   api.setToken(token)
   localStorage.setItem('token', token)

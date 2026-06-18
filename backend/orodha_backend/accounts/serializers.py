@@ -78,6 +78,7 @@ class LoginSerializer(serializers.Serializer):
     correct schema.
     """
 
+    organisation = serializers.CharField()
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
 
@@ -90,17 +91,26 @@ class LoginSerializer(serializers.Serializer):
         was created through create_user() or set_password().
         """
 
-        user = authenticate(
-            request=self.context.get("request"),
-            username=attrs["username"],
-            password=attrs["password"],
-        )
+        # shield serializer from shema info
 
-        if not user:
-            raise serializers.ValidationError("Invalid username or password.")
+        # user = authenticate(
+        #     request=self.context.get("request"),
+        #     username=attrs["username"],
+        #     password=attrs["password"],
+        # )
 
-        if not user.is_active:
-            raise serializers.ValidationError("This account is inactive.")
+        # if not user:
+        #     raise serializers.ValidationError("Invalid username or password.")
 
-        attrs["user"] = user
+        # if not user.is_active:
+        #     raise serializers.ValidationError("This account is inactive.")
+
+        # attrs["user"] = user
+        # return attrs
+
+        if not attrs["organisation"].strip():
+            raise serializers.ValidationError(
+                {"organisation": "Organisation is required."}
+            )
+        
         return attrs
