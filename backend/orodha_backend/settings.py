@@ -51,7 +51,7 @@ ALLOWED_HOSTS = env_list('DJANGO_ALLOWED_HOSTS')
 SHARED_APPS = [
     'django_tenants',
 
-     "corsheaders",
+    'corsheaders',
 
     'orodha_backend.tenants',
 ]
@@ -77,7 +77,7 @@ INSTALLED_APPS = list(SHARED_APPS) + [
 
 MIDDLEWARE = [
     'django_tenants.middleware.main.TenantMainMiddleware',
-    "corsheaders.middleware.CorsMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
