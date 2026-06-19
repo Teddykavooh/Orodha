@@ -1,20 +1,6 @@
-import React, {
-  useEffect,
-  useState
-} from 'react'
-
-import {
-  useDispatch,
-  useSelector
-} from 'react-redux'
-
-import {
-  fetchHubs,
-  createHub,
-  updateHub,
-  deleteHub
-} from '../features/hubs/hubsSlice'
-
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchHubs, createHub, updateHub, deleteHub } from '../features/hubs/hubsSlice'
 import HubForm from '../components/hubs/HubForm'
 import HubTable from '../components/hubs/HubTable'
 
