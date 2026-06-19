@@ -1,8 +1,15 @@
 import axios from "axios";
 
+const organisation = localStorage.getItem("organisation");
+const protocol = window.location.protocol;
+const port = window.location.port
+  ? `:${window.location.port}`
+  : "";
+const host = window.location.hostname;
+
 // Simple API wrapper. Call setToken(token) after login to attach Authorization header.
 const instance = axios.create({
-  baseURL: "/api", // frontend dev should proxy to backend or use full tenant domain
+  baseURL: `${protocol}//${organisation}.${host}:8000/api`,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -14,16 +21,7 @@ function setToken(token) {
   }
 }
 
-function setTenant(schemaName) {
-  if (schemaName) {
-    instance.defaults.headers.common["X-Tenant"] = schemaName;
-  } else {
-    delete instance.defaults.headers.common["X-Tenant"];
-  }
-}
-
 setToken(localStorage.getItem("token"));
-setTenant(localStorage.getItem("tenant_schema"));
 
 export default {
   get: (url, opts) => instance.get(url, opts),
@@ -32,5 +30,4 @@ export default {
   patch: (url, data, opts) => instance.patch(url, data, opts),
   delete: (url, opts) => instance.delete(url, opts),
   setToken,
-  setTenant,
 };

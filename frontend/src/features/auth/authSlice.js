@@ -1,25 +1,33 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import api from '../../services/api'
+import axios from 'axios';
 
 const savedToken = localStorage.getItem('token') || null
-api.setToken(savedToken)
-const savedTenant = localStorage.getItem("tenant_schema");
-api.setTenant(savedTenant);
+api.setToken(savedToken);
+
+const protocol = window.location.protocol;
+const port = window.location.port
+  ? `:${window.location.port}`
+  : "";
+const host = window.location.hostname;
 
 export const login = createAsyncThunk('auth/login', async ({ organisation, username, password }, thunkAPI) => {
-  const res = await api.post('/auth/login/', { organisation, username, password })
-  const token = res.data.token
-  const tenantSchema = res.data.tenant.schema_name;
+  // New logic
+  const tenantApi = axios.create({
+    baseURL: `${protocol}//${organisation}.${host}:8000/api`,
+    headers: {
+      "Content-Type": "application/json"
+    },
+  });
 
-  // updates Axios immediately
-  api.setToken(token)
-  api.setTenant(tenantSchema);
+  const res = await tenantApi.post("/auth/login/", {
+    organisation,
+    username,
+    password,
+  });
 
-  localStorage.setItem('token', token)
-  localStorage.setItem("tenant_schema", tenantSchema);
-  // return { token, user: res.data.user }
-  return res.data
-})
+  return res.data;
+});
 
 export const fetchMe = createAsyncThunk('auth/fetchMe', async (_, thunkAPI) => {
   try {
@@ -49,7 +57,6 @@ const authSlice = createSlice({
       localStorage.removeItem("tenant_schema");
 
       api.setToken(null);
-      api.setTenant(null);
     },
   },
   extraReducers: (builder) => {

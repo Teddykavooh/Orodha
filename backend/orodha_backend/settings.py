@@ -50,6 +50,9 @@ ALLOWED_HOSTS = env_list('DJANGO_ALLOWED_HOSTS')
 
 SHARED_APPS = [
     'django_tenants',
+
+     "corsheaders",
+
     'orodha_backend.tenants',
 ]
 
@@ -74,6 +77,7 @@ INSTALLED_APPS = list(SHARED_APPS) + [
 
 MIDDLEWARE = [
     'django_tenants.middleware.main.TenantMainMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -190,3 +194,6 @@ TENANT_UNAWARE_PREFIXES = (
 
 # Custom user
 AUTH_USER_MODEL = 'accounts.UserProfile'
+
+# CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_BOOL', 'False').lower() == 'True'
+CORS_ALLOW_ALL_ORIGINS = True

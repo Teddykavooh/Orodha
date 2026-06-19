@@ -4,10 +4,10 @@ from django_tenants.models import TenantMixin, DomainMixin
 
 # Create your models here.
 class Client(TenantMixin):
-    name = models.CharField(
-        max_length=255,
-        unique=True
-    )
+    # name = models.CharField(
+    #     max_length=255,
+    #     unique=True
+    # )
 
     business_name = models.CharField(
         max_length=255

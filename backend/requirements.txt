@@ -3,6 +3,7 @@ astroid==4.0.4
 colorama==0.4.6
 dill==0.4.1
 Django==6.0.6
+django-cors-headers==4.9.0
 django-tenants==3.10.1
 djangorestframework==3.17.1
 isort==8.0.1

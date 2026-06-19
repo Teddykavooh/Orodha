@@ -1,5 +1,7 @@
 /.venv
 .env
+LOCAL.env
+PRODUCTION.env
 /orodha_backend/__pycache__
 /orodha_backend/tenants/__pycache__
 /orodha_backend/tenants/migrations/__pycache__

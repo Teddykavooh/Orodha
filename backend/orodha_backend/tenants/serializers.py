@@ -22,7 +22,7 @@ class TenantRegistrationSerializer(serializers.Serializer):
     """
 
     schema_name = serializers.SlugField(max_length=63)
-    name = serializers.CharField(max_length=255)
+    # name = serializers.CharField(max_length=255)
     business_name = serializers.CharField(max_length=255)
     logo = serializers.CharField(max_length=255, required=False, allow_blank=True)
     # for later
@@ -34,8 +34,6 @@ class TenantRegistrationSerializer(serializers.Serializer):
     primary_color = serializers.CharField(max_length=7, required=False)
     secondary_color = serializers.CharField(max_length=7, required=False)
     accent_color = serializers.CharField(max_length=7, required=False)
-    # fine tune domain entry
-    domain = serializers.SlugField(max_length=63)
     admin_username = serializers.CharField(max_length=150)
     admin_email = serializers.EmailField(required=False, allow_blank=True)
     admin_password = serializers.CharField(write_only=True, min_length=8)
@@ -52,28 +50,28 @@ class TenantRegistrationSerializer(serializers.Serializer):
             raise serializers.ValidationError("A tenant with this schema already exists.")
         return value
 
-    def validate_name(self, value):
-        """Ensure the tenant display/internal name is unique."""
+    # def validate_name(self, value):
+    #     """Ensure the tenant display/internal name is unique."""
 
-        if Client.objects.filter(name=value).exists():
-            raise serializers.ValidationError("A tenant with this name already exists.")
-        return value
+    #     if Client.objects.filter(name=value).exists():
+    #         raise serializers.ValidationError("A tenant with this name already exists.")
+    #     return value
 
-    def validate_domain(self, value):
-        """
-        Normalize and validate the tenant domain.
+    # def validate_domain(self, value):
+    #     """
+    #     Normalize and validate the tenant domain.
 
-        django-tenants uses Domain.domain to decide which schema a request
-        belongs to. Duplicate domains would make routing ambiguous.
-        """
+    #     django-tenants uses Domain.domain to decide which schema a request
+    #     belongs to. Duplicate domains would make routing ambiguous.
+    #     """
 
-        value = value.lower().strip()
+    #     value = value.lower().strip()
 
-        full_domain = f"{value}.{os.getenv('TENANT_BASE_DOMAIN')}"
+    #     full_domain = f"{value}.{os.getenv('TENANT_BASE_DOMAIN')}"
 
-        if Domain.objects.filter(domain=full_domain).exists():
-            raise serializers.ValidationError("This domain is already registered.")
-        return value
+    #     if Domain.objects.filter(domain=full_domain).exists():
+    #         raise serializers.ValidationError("This domain is already registered.")
+    #     return value
 
     @transaction.atomic
     def create(self, validated_data):
@@ -89,7 +87,7 @@ class TenantRegistrationSerializer(serializers.Serializer):
         admin_email = validated_data.pop("admin_email", "")
         admin_password = validated_data.pop("admin_password")
         # automate domain registration
-        domain_slug =  validated_data.pop("domain")
+        domain_slug =  validated_data.pop("schema_name")
         domain_name = (
             f"{domain_slug}.{os.getenv('TENANT_BASE_DOMAIN')}"
         )
@@ -135,10 +133,11 @@ class TenantRegistrationSerializer(serializers.Serializer):
         admin = instance["admin"]
 
         return {
+            "message": "Registration successful",
+            "login_url": f"{os.getenv("FRONTEND_PROTOCOL")}://{domain.domain}:{os.getenv("FRONTEND_PORT")}/login",
             "tenant": {
                 "id": tenant.id,
                 "schema_name": tenant.schema_name,
-                "name": tenant.name,
                 "business_name": tenant.business_name,
                 "domain": domain.domain,
             },
@@ -166,7 +165,6 @@ class TenantSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "schema_name",
-            "name",
             "business_name",
             "logo",
             "tagline",

@@ -15,6 +15,7 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [organisation, setOrganisation] = useState(localStorage.getItem("organisation") || "")
+  // const [msg, setMsg] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch()
@@ -31,7 +32,9 @@ export default function Login() {
 
       localStorage.setItem("token", res.token);
 
-      localStorage.setItem("tenant_domain", res.tenant.tenant_domain)
+      localStorage.setItem("organisation", organisation)
+
+      // setMsg(res.data.message);
 
       const roleRoutes = {
         WHOLESALER_ADMIN: "/dashboard",
@@ -40,7 +43,7 @@ export default function Login() {
       };
 
       const destination =
-        roleRoutes[res.user.role] || "/";
+        roleRoutes[res.user.role] || "/sales";
 
       const protocol = window.location.protocol;
       const port = window.location.port
@@ -48,20 +51,13 @@ export default function Login() {
         : "";
       const host = window.location.hostname
 
-      // console.log("me link: ", `${protocol}//${host}${port}${destination}`)
       // window.location.href = `${protocol}//${host}${port}${destination}`;
-      // if (res.user.role === "WHOLESALER_ADMIN") {
-      //   navigate("/dashboard");
-      // }
-      // else if (res.user.role === "SALES_MANAGER") {
-      //   navigate("/inventory");
-      // }
-      // else {
-      //   navigate("/sales");
-      // }
 
-      navigate(`${destination}`)
-      // console.log("Me link: ", `${destination}`)
+      setTimeout(() => {
+        // console.log("Me link: ", `${destination}`)
+        // console.log("GOTO link: ", `${protocol}//${organisation}.${host}${port}${destination}`)
+        navigate(`${destination}`)
+      }, 1500);
 
     } catch (err) {
       setError(err?.message || String(err));
