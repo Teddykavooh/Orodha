@@ -14,5 +14,6 @@ export const store = configureStore({
     users: usersReducer,
     products: productsReducer,
     sales: salesReducer,
+    hubs: hubsReducer,
   },
 })
