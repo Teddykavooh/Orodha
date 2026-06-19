@@ -87,7 +87,7 @@ class TenantRegistrationSerializer(serializers.Serializer):
         admin_email = validated_data.pop("admin_email", "")
         admin_password = validated_data.pop("admin_password")
         # automate domain registration
-        domain_slug =  validated_data.pop("schema_name")
+        domain_slug =  validated_data.get("schema_name")
         domain_name = (
             f"{domain_slug}.{os.getenv('TENANT_BASE_DOMAIN')}"
         )

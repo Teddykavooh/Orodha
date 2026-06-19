@@ -7,6 +7,8 @@ import api from '../../services/api'
  */
 export const fetchSales = createAsyncThunk('sales/fetchSales', async (_, thunkAPI) => {
   const res = await api.get('/sales/')
+  // console.log("This is my payload: ", action.payload);
+  console.log("This is my res: ", res);
   return res.data
 })
 
@@ -52,7 +54,7 @@ const salesSlice = createSlice({
       })
       .addCase(fetchSales.fulfilled, (state, action) => {
         state.status = 'succeeded'
-        state.items = action.payload
+        state.items = action.payload.results || []
         state.error = null
       })
       .addCase(fetchSales.rejected, (state, action) => {

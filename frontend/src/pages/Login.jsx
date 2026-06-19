@@ -38,7 +38,7 @@ export default function Login() {
 
       const roleRoutes = {
         WHOLESALER_ADMIN: "/dashboard",
-        SALES_MANAGER: "/inventory",
+        SALES_MANAGER: "/sales",
         SALESPERSON: "/sales",
       };
 

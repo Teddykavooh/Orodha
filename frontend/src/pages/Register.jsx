@@ -47,9 +47,9 @@ export default function Register() {
 
       setMsg(res.data.message);
 
-      // navigate("/login");
       setTimeout(() => {
-        window.location.href = res.data.login_url
+        // window.location.href = res.data.login_url
+        navigate("/login");
       }, 1500)
 
       setSchema("");
@@ -58,7 +58,15 @@ export default function Register() {
       setAdminEmail("");
       setAdminPassword("");
     } catch (err) {
-      setMsg(err?.response?.data || String(err));
+      const errorData = err?.response?.data;
+      const simpleMessage = 
+        errorData?.message ||                           // 1. Checks for custom message keys
+        errorData?.detail ||                            // 2. Checks for standard DRF detail keys
+        (typeof errorData === 'string' ? errorData : '') || // 3. Checks if data is a direct error string
+        Object.values(errorData || {})[0]?.[0] ||       // 4. Extracts the first serializer error array item
+        err?.message ||                                 // 5. Fallback to native browser error message
+        "An unexpected error occurred.";                // 6. Hard safety fallback
+      setMsg(String(simpleMessage).substring(0, 150)); // Keeps it short and strips huge text dumps
     } finally {
       setLoading(false);
     }

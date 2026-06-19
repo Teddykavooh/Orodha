@@ -1,4 +1,5 @@
 from rest_framework import permissions, viewsets
+
 from django.db import connection
 
 from .models import SaleLog
@@ -34,5 +35,11 @@ class SaleLogViewSet(viewsets.ModelViewSet):
 
     '''Temp endpoint debug'''
     def list(self, request, *args, **kwargs):
-        print("CURRENT SCHEMA:", connection.schema_name)
+        print("========== SALES ENDPOINT ==========")
+        print("SCHEMA:", connection.schema_name)
+        print("USER:", request.user)
+        print("AUTH:", request.auth)
+        print("IS AUTHENTICATED:", request.user.is_authenticated)
+        print("ROLE:", getattr(request.user, "role", None))
+        print("===================================")
         return super().list(request, *args, **kwargs)
