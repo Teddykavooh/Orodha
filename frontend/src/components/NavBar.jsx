@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux'
 import { logout } from '../features/auth/authSlice'
@@ -13,6 +13,7 @@ import { Button } from './ui/Button'
 export default function NavBar() {
   const user = useSelector(state => state.auth.user)
   const dispatch = useDispatch()
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <nav className="bg-white border-b border-gray-300 px-6 py-4 flex justify-between items-center shadow-sm">
@@ -23,9 +24,12 @@ export default function NavBar() {
 
       {/* Navigation links - only visible when authenticated */}
       {user && (
-        <div className="flex gap-8 items-center">
+        <div className="hidden md:flex gap-8 items-center">
           <Link to="/dashboard" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
             Dashboard
+          </Link>
+          <Link to="/hubs" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
+            Hubs
           </Link>
           <Link to="/users" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
             Users
@@ -40,7 +44,7 @@ export default function NavBar() {
       )}
 
       {/* Auth section */}
-      <div className="flex gap-3 items-center">
+      <div className="hidden md:flex gap-3 items-center">
         {user ? (
           <>
             <span className="text-gray-900 font-semibold text-sm">{user.username}</span>
@@ -59,6 +63,103 @@ export default function NavBar() {
           </>
         )}
       </div>
+
+      {/* Mobile Hamburger */}
+      <button
+        className="md:hidden text-2xl"
+        onClick={() => setMobileOpen(!mobileOpen)}
+      >
+        ☰
+      </button>
+
+      {/* Mobile Menu */}
+      {mobileOpen && (
+        <div className="md:hidden border-t border-gray-200 px-6 py-4 space-y-3">
+          {user ? (
+            <>
+              <Link
+                to="/dashboard"
+                className="block"
+                onClick={() => setMobileOpen(false)}
+              >
+                Dashboard
+              </Link>
+
+              <Link
+                to="/hubs"
+                className="block"
+                onClick={() => setMobileOpen(false)}
+              >
+                Hubs
+              </Link>
+
+              <Link
+                to="/users"
+                className="block"
+                onClick={() => setMobileOpen(false)}
+              >
+                Users
+              </Link>
+
+              <Link
+                to="/products"
+                className="block"
+                onClick={() => setMobileOpen(false)}
+              >
+                Products
+              </Link>
+
+              <Link
+                to="/sales"
+                className="block"
+                onClick={() => setMobileOpen(false)}
+              >
+                Sales
+              </Link>
+
+              <div className="pt-3 border-t">
+                <p className="text-sm text-gray-500 mb-2">
+                  {user.username}
+                </p>
+
+                <Button
+                  className="w-full"
+                  variant="outline"
+                  onClick={() => {
+                    dispatch(logout());
+                    setMobileOpen(false);
+                  }}
+                >
+                  Logout
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                onClick={() => setMobileOpen(false)}
+              >
+                <Button
+                  variant="outline"
+                  className="w-full"
+                >
+                  Login
+                </Button>
+              </Link>
+
+              <Link
+                to="/register"
+                onClick={() => setMobileOpen(false)}
+              >
+                <Button className="w-full">
+                  Register
+                </Button>
+              </Link>
+            </>
+          )}
+        </div>
+      )}
     </nav>
   );
 }

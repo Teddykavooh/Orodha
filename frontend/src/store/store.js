@@ -3,6 +3,7 @@ import authReducer from '../features/auth/authSlice'
 import usersReducer from '../features/users/usersSlice'
 import productsReducer from '../features/products/productsSlice'
 import salesReducer from '../features/sales/salesSlice'
+import hubsReducer from '../features/hubs/hubsSlice'
 
 /**
  * Redux store configuration with slices for auth, users, products, and sales.
