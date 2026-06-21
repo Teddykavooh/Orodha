@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import api from '../../services/api'
+import { tenantApi as api } from '../../services/api'
 
 export const fetchHubs = createAsyncThunk(
   'hubs/fetchHubs',

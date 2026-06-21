@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux'
 import { logout } from '../features/auth/authSlice'
 import { Button } from './ui/Button'
@@ -11,9 +11,14 @@ import { Button } from './ui/Button'
  * Uses Tailwind CSS for responsive styling with flexbox and hover effects.
  */
 export default function NavBar() {
-  const user = useSelector(state => state.auth.user)
-  const dispatch = useDispatch()
+  const user = useSelector(state => state.auth.user);
+  const dispatch = useDispatch();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navigate = useNavigate();
+
+  function redirectToLogin() {
+    navigate("/login")
+  }
 
   return (
     <nav className="bg-white border-b border-gray-300 px-6 py-4 flex justify-between items-center shadow-sm">
@@ -48,7 +53,11 @@ export default function NavBar() {
         {user ? (
           <>
             <span className="text-gray-900 font-semibold text-sm">{user.username}</span>
-            <Button variant="outline" size="sm" onClick={() => dispatch(logout())}>
+            <Button variant="outline" size="sm" onClick={() => {
+              dispatch(logout());
+              // redirect to login
+              redirectToLogin();
+              }}>
               Logout
             </Button>
           </>
@@ -128,6 +137,8 @@ export default function NavBar() {
                   onClick={() => {
                     dispatch(logout());
                     setMobileOpen(false);
+                    // redirect to login
+                    redirectToLogin();
                   }}
                 >
                   Logout

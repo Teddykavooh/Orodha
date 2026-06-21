@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import api from "../services/api";
+import { useNavigate } from 'react-router-dom';
+import { publicApi } from "../services/api";
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
 import { Input } from '../components/ui/Input'
 import { Button } from '../components/ui/Button'
@@ -10,6 +11,7 @@ import { Button } from '../components/ui/Button'
  * On success, shows confirmation message.
  */
 export default function Register() {
+  const navigate = useNavigate();
   const [schema, setSchema] = useState("");
   const [business, setBusiness] = useState("");
   const [adminUsername, setAdminUsername] = useState("");
@@ -17,21 +19,21 @@ export default function Register() {
   const [adminPassword, setAdminPassword] = useState("");
   const [msg, setMsg] = useState(null);
   const [loading, setLoading] = useState(false);
-  const isSuccess = typeof msg === "string" && msg.includes("registered");
+  const isSuccess = typeof msg === "string" && msg.includes("success");
   const displayMsg = typeof msg === "string" ? msg : JSON.stringify(msg);
 
-  function tenantLoginUrl(tenantDomain, username) {
-    const protocol = window.location.protocol;
-    const port = window.location.port ? `:${window.location.port}` : "";
-    const params = new URLSearchParams({ username });
-    return `${protocol}//${tenantDomain}${port}/login?${params.toString()}`;
-  }
+  // function tenantLoginUrl(tenantDomain, username) {
+  //   const protocol = window.location.protocol;
+  //   const port = window.location.port ? `:${window.location.port}` : "";
+  //   const params = new URLSearchParams({ username });
+  //   return `${protocol}//${tenantDomain}${port}/login?${params.toString()}`;
+  // }
 
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await api.post("/tenants/register/", {
+      const res = await publicApi.post("/tenants/register/", {
         schema_name: schema,
         business_name: business,
         logo: "",

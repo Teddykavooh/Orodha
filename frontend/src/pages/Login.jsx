@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from 'react-redux'
-import { login } from '../features/auth/authSlice'
+import { fetchMe, login } from '../features/auth/authSlice'
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
 import { Input } from '../components/ui/Input'
 import { Button } from '../components/ui/Button'
@@ -26,13 +26,15 @@ export default function Login() {
     setLoading(true);
     try {
       const res = await dispatch(login({ organisation, username, password })).unwrap()
-
+      const authChack = await dispatch
       // console.log(res);
       // console.log("This is me domain: ", res.tenant.tenant_domain);
+      // console.log("This is me token: ", res.token);
+      // console.log("This is me org: ", organisation);
 
-      localStorage.setItem("token", res.token);
+      // localStorage.setItem("token", res.token);
 
-      localStorage.setItem("organisation", organisation)
+      // localStorage.setItem("organisation", organisation)
 
       // setMsg(res.data.message);
 
@@ -51,13 +53,14 @@ export default function Login() {
         : "";
       const host = window.location.hostname
 
-      // window.location.href = `${protocol}//${host}${port}${destination}`;
+      window.location.href = `${protocol}//${host}${port}${destination}`;
+      // dispatch(fetchMe())
 
-      setTimeout(() => {
-        // console.log("Me link: ", `${destination}`)
-        // console.log("GOTO link: ", `${protocol}//${organisation}.${host}${port}${destination}`)
-        navigate(`${destination}`)
-      }, 1500);
+      // setTimeout(() => {
+      //   // console.log("Me link: ", `${destination}`)
+      //   // console.log("GOTO link: ", `${protocol}//${organisation}.${host}${port}${destination}`)
+      //   navigate(`${destination}`)
+      // }, 1500);
 
     } catch (err) {
       setError(err?.message || String(err));

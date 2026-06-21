@@ -1,12 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import api from '../../services/api'
+import { tenantApi } from '../../services/api'
 
 /**
  * fetchProducts: GET /api/products/
  * Retrieves all products in the current tenant.
  */
 export const fetchProducts = createAsyncThunk('products/fetchProducts', async (_, thunkAPI) => {
-  const res = await api.get('/products/')
+  const res = await tenantApi.get('/products/')
   return res.data
 })
 
@@ -15,7 +15,7 @@ export const fetchProducts = createAsyncThunk('products/fetchProducts', async (_
  * Creates a new product with name and optional fields (sku, price, etc.).
  */
 export const createProduct = createAsyncThunk('products/createProduct', async (productData, thunkAPI) => {
-  const res = await api.post('/products/', productData)
+  const res = await tenantApi.post('/products/', productData)
   return res.data
 })
 
@@ -24,7 +24,7 @@ export const createProduct = createAsyncThunk('products/createProduct', async (p
  * Updates a product by ID.
  */
 export const updateProduct = createAsyncThunk('products/updateProduct', async ({ id, data }, thunkAPI) => {
-  const res = await api.put(`/products/${id}/`, data)
+  const res = await tenantApi.put(`/products/${id}/`, data)
   return res.data
 })
 
@@ -33,7 +33,7 @@ export const updateProduct = createAsyncThunk('products/updateProduct', async ({
  * Deletes a product by ID (only available for WHOLESALER_ADMIN).
  */
 export const deleteProduct = createAsyncThunk('products/deleteProduct', async (productId, thunkAPI) => {
-  await api.delete(`/products/${productId}/`)
+  await tenantApi.delete(`/products/${productId}/`)
   return productId
 })
 

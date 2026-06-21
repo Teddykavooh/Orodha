@@ -35,9 +35,9 @@ export default function Dashboard() {
 
   // Fetch all data on component mount
   useEffect(() => {
-    // dispatch(fetchSales())
+    dispatch(fetchSales())
     dispatch(fetchUsers())
-    // dispatch(fetchProducts())
+    dispatch(fetchProducts())
   }, [dispatch])
 
   /**

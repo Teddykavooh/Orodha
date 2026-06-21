@@ -1,12 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import api from '../../services/api'
+import { tenantApi } from '../../services/api'
 
 /**
  * fetchUsers: GET /api/users/
  * Retrieves all users (filtered by hub for SALES_MANAGER, all for WHOLESALER_ADMIN).
  */
 export const fetchUsers = createAsyncThunk('users/fetchUsers', async (_, thunkAPI) => {
-  const res = await api.get('/users/')
+  const res = await tenantApi.get('/users/')
   return res.data
 })
 
@@ -15,7 +15,7 @@ export const fetchUsers = createAsyncThunk('users/fetchUsers', async (_, thunkAP
  * Creates a new user with username, password, role, and optional hub.
  */
 export const createUser = createAsyncThunk('users/createUser', async (userData, thunkAPI) => {
-  const res = await api.post('/users/', userData)
+  const res = await tenantApi.post('/users/', userData)
   return res.data
 })
 
@@ -24,7 +24,7 @@ export const createUser = createAsyncThunk('users/createUser', async (userData, 
  * Deletes a user by ID (only available for WHOLESALER_ADMIN).
  */
 export const deleteUser = createAsyncThunk('users/deleteUser', async (userId, thunkAPI) => {
-  await api.delete(`/users/${userId}/`)
+  await tenantApi.delete(`/users/${userId}/`)
   return userId
 })
 

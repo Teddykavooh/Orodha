@@ -1,12 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import api from '../../services/api'
+import { tenantApi } from '../../services/api'
 
 /**
  * fetchSales: GET /api/sales/
  * Retrieves all sales (filtered by hub for SALESPERSON/SALES_MANAGER, all for WHOLESALER_ADMIN).
  */
 export const fetchSales = createAsyncThunk('sales/fetchSales', async (_, thunkAPI) => {
-  const res = await api.get('/sales/')
+  const res = await tenantApi.get('/sales/')
   // console.log("This is my payload: ", action.payload);
   console.log("This is my res: ", res);
   return res.data
@@ -17,7 +17,7 @@ export const fetchSales = createAsyncThunk('sales/fetchSales', async (_, thunkAP
  * Creates a new sale with items, quantities, customer info, and optional note.
  */
 export const createSale = createAsyncThunk('sales/createSale', async (saleData, thunkAPI) => {
-  const res = await api.post('/sales/', saleData)
+  const res = await tenantApi.post('/sales/', saleData)
   return res.data
 })
 
@@ -26,7 +26,7 @@ export const createSale = createAsyncThunk('sales/createSale', async (saleData, 
  * Updates a sale by ID (for adjusting notes or status).
  */
 export const updateSale = createAsyncThunk('sales/updateSale', async ({ id, data }, thunkAPI) => {
-  const res = await api.put(`/sales/${id}/`, data)
+  const res = await tenantApi.put(`/sales/${id}/`, data)
   return res.data
 })
 
@@ -35,7 +35,7 @@ export const updateSale = createAsyncThunk('sales/updateSale', async ({ id, data
  * Deletes a sale by ID (only available for WHOLESALER_ADMIN).
  */
 export const deleteSale = createAsyncThunk('sales/deleteSale', async (saleId, thunkAPI) => {
-  await api.delete(`/sales/${saleId}/`)
+  await tenantApi.delete(`/sales/${saleId}/`)
   return saleId
 })
 
