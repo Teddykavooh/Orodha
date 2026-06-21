@@ -8,7 +8,7 @@ import { tenantApi } from '../../services/api'
 export const fetchSales = createAsyncThunk('sales/fetchSales', async (_, thunkAPI) => {
   const res = await tenantApi.get('/sales/')
   // console.log("This is my payload: ", action.payload);
-  console.log("This is my res: ", res);
+  // console.log("This is my res: ", res);
   return res.data
 })
 
