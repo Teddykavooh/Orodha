@@ -7,15 +7,23 @@ const port = window.location.port
   : "";
 const host = window.location.hostname;
 
+const API_URL = import.meta.env.VITE_API_URL 
+  ? import.meta.env.VITE_API_URL 
+  : 'http://localhost:8000'; // Fallback just in case
+
+const API_URL2 = import.meta.env.VITE_PROXY_TARGET_CUSTOM
+  ? import.meta.env.VITE_PROXY_TARGET_CUSTOM
+  : 'localhost:8000'
+
 // Simple API wrapper. Call setToken(token) after login to attach Authorization header.
 
 const instance = axios.create({
-  baseURL: `${protocol}//${host}:8000/api`,
+  baseURL: `${API_URL}/api`,
   headers: { "Content-Type": "application/json" },
 });
 
 const instance2 = axios.create({
-  baseURL: `${protocol}//${organisation}.${host}:8000/api`,
+  baseURL: `${protocol}//${organisation}.${API_URL2}/api`,
   headers: { "Content-Type": "application/json" },
 });
 
