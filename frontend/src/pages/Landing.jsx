@@ -8,6 +8,8 @@ import { Card, CardContent } from '../components/ui/Card'
  * Links to register or login depending on user state.
  */
 export default function Landing() {
+  // console.log("1", import.meta.env.VITE_PROXY_TARGET || 'https://orodha-backend.vercel.app');
+  // console.log("2", import.meta.env.VITE_PROXY_TARGET_CUSTOM || 'orodha-backend.vercel.app');
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <div className="max-w-4xl mx-auto px-4 py-20 space-y-12">

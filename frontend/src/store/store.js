@@ -4,6 +4,7 @@ import usersReducer from '../features/users/usersSlice'
 import productsReducer from '../features/products/productsSlice'
 import salesReducer from '../features/sales/salesSlice'
 import hubsReducer from '../features/hubs/hubsSlice'
+import inventoryReducer from "../features/inventory/inventorySlice"
 
 /**
  * Redux store configuration with slices for auth, users, products, and sales.
@@ -16,5 +17,6 @@ export const store = configureStore({
     products: productsReducer,
     sales: salesReducer,
     hubs: hubsReducer,
+    inventory: inventoryReducer,
   },
 })

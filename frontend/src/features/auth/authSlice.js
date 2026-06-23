@@ -96,6 +96,7 @@ const authSlice = createSlice({
         // console.log("log in success set org: ", action.payload)
         localStorage.setItem('organisation', orgSchemaName)
         tenantApi.setOrganisation(action.payload.tenant.schema_name)
+        localStorage.setItem('business_name', action.payload.tenant.business_name)
       })
       .addCase(login.rejected, (state, action) => {
         state.status = 'failed'

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
+
 import { publicApi } from "../services/api";
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
 import { Input } from '../components/ui/Input'
@@ -17,6 +19,7 @@ export default function Register() {
   const [adminUsername, setAdminUsername] = useState("");
   const [adminEmail, setAdminEmail] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [msg, setMsg] = useState(null);
   const [loading, setLoading] = useState(false);
   const isSuccess = typeof msg === "string" && msg.includes("success");
@@ -100,7 +103,30 @@ export default function Register() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Admin password</label>
-              <Input type="password" value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} placeholder="At least 8 characters" disabled={loading} />
+              {/* Relative wrapper keeps the button tracked inside the input bounds */}
+              <div className="relative flex items-center">
+                <Input
+                  type={showPassword ? "text" : "password"} // Switches input mask rules instantly
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  placeholder="At least 8 characters"
+                  disabled={loading}
+                  className="pr-10" // Extra padding-right stops text running underneath the icon button
+                />
+                <button
+                  type="button" // CRITICAL: Must be type="button" so it doesn't accidentally trigger form submit
+                  onClick={() => setShowPassword(!showPassword)}
+                  disabled={loading}
+                  className="absolute right-3 text-gray-400 hover:text-gray-600 focus:outline-none disabled:opacity-50 transition-colors"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
             {msg && <p className={`text-sm p-2 rounded ${isSuccess ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>{displayMsg}</p>}
             <Button type="submit" className="w-full" disabled={loading}>

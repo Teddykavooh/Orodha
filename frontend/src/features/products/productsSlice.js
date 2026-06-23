@@ -15,6 +15,7 @@ export const fetchProducts = createAsyncThunk('products/fetchProducts', async (_
  * Creates a new product with name and optional fields (sku, price, etc.).
  */
 export const createProduct = createAsyncThunk('products/createProduct', async (productData, thunkAPI) => {
+  // console.log("Product Data: ", productData)
   const res = await tenantApi.post('/products/', productData)
   return res.data
 })

@@ -7,7 +7,7 @@ const port = window.location.port
   : "";
 const host = window.location.hostname;
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://orodha-backend.vercel.app'; // Fallback just in case
+const API_URL = import.meta.env.VITE_PROXY_TARGET || 'https://orodha-backend.vercel.app'; // Fallback just in case
 
 const API_URL2 = import.meta.env.VITE_PROXY_TARGET_CUSTOM || 'orodha-backend.vercel.app'
 

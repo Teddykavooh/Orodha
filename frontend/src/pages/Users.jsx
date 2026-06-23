@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchUsers, createUser, deleteUser } from '../features/users/usersSlice'
+import { Eye, EyeOff } from 'lucide-react';
+
+import { fetchUsers, createUser, deleteUser, updateUser } from '../features/users/usersSlice'
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/ui/Table'
 import { Button } from '../components/ui/Button'
@@ -29,39 +31,92 @@ export default function Users() {
   const usersError = useSelector(state => state.users.error)
   const authUser = useSelector(state => state.auth.user)
 
+  // Form Field States
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("SALESPERSON");
+  const [showPassword, setShowPassword] = useState(false);
+  
+  // UI Flow Control States
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [editingUser, setEditingUser] = useState(null); // Added state to track current row editing profile
 
   // Fetch users on component mount
   useEffect(() => {
     dispatch(fetchUsers())
   }, [dispatch]);
 
+  // Open modal configured for a clean "Create User" session
+  function openCreateModal() {
+    setEditingUser(null)
+    setUsername("")
+    setPassword("")
+    setEmail("")
+    setRole("SALESPERSON")
+    setIsOpen(true)
+  }
+
+  // Open modal pre-filled configured for "Edit User" session
+  function openEditModal(user) {
+    setEditingUser(user)
+    setUsername(user.username || "")
+    setPassword("") // Clear password field completely for safety
+    setEmail(user.email || "")
+    setRole(user.role || "SALESPERSON")
+    setIsOpen(true)
+  }
+
+  // Cancel and reset dialog context cleanly
+  function handleCloseModal() {
+    setIsOpen(false)
+    setEditingUser(null)
+    setUsername("")
+    setPassword("")
+    setEmail("")
+    setRole("SALESPERSON")
+    setShowPassword(false)
+  }
+
   /**
-   * Handle user creation via Redux thunk dispatch.
-   * Validates required fields, dispatches createUser action, clears form and closes dialog.
+   * Combined handler that pipes submissions into Create or Update sequences conditionally.
    */
-  async function handleCreateUser(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    if (!username || !password) {
+    
+    // Validation rules vary dynamically depending on configuration mode
+    if (!editingUser && (!username || !password)) {
       alert("Username and password are required");
       return;
     }
+    if (editingUser && !username) {
+      alert("Username is required");
+      return;
+    }
+
     setLoading(true);
+
+    // Build modern standard payload body mapping fields out cleanly
+    const payload = { username, email, role };
+    if (password) {
+      payload.password = password; // Attach password mutation variables only if explicitly written
+    }
+
     try {
-      const result = await dispatch(createUser({ username, password, email, role })).unwrap();
-      // Reset form and close dialog on success
-      setUsername("");
-      setPassword("");
-      setEmail("");
-      setRole("SALESPERSON");
-      setIsOpen(false);
+      if (editingUser) {
+        // Mode: Update Existing User
+        await dispatch(updateUser({
+          id: editingUser.id,
+          data: payload
+        })).unwrap();
+      } else {
+        // Mode: Create New User
+        await dispatch(createUser(payload)).unwrap();
+      }
+      handleCloseModal();
     } catch (err) {
-      alert(err?.message || "Failed to create user");
+      alert(err?.message || `Failed to ${editingUser ? 'update' : 'create'} user`);
     } finally {
       setLoading(false);
     }
@@ -69,7 +124,6 @@ export default function Users() {
 
   /**
    * Handle user deletion via Redux thunk dispatch.
-   * Shows confirmation dialog before deleting.
    */
   async function handleDeleteUser(id) {
     if (!window.confirm("Delete user? This action cannot be undone.")) return;
@@ -85,7 +139,9 @@ export default function Users() {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">Users</h2>
         {authUser?.role === "WHOLESALER_ADMIN" && (
-          <Button onClick={() => setIsOpen(true)} disabled={usersStatus === 'loading'}>Add User</Button>
+          <Button onClick={openCreateModal} disabled={usersStatus === 'loading'}>
+            Add User
+          </Button>
         )}
       </div>
 
@@ -96,12 +152,12 @@ export default function Users() {
         </div>
       )}
 
-      {/* Create user dialog modal */}
-      <Dialog isOpen={isOpen} onClose={() => setIsOpen(false)} className="max-w-md">
+      {/* Shared Configuration Form Dialog Modal */}
+      <Dialog isOpen={isOpen} onClose={handleCloseModal} className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Create User</DialogTitle>
+          <DialogTitle>{editingUser ? "Edit User" : "Create User"}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleCreateUser} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Username *</label>
             <Input
@@ -123,29 +179,49 @@ export default function Users() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
-            <Input
-              type="password"
-              placeholder="min 8 characters"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
-              required
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {editingUser ? "Password (Leave blank to keep current)" : "Password *"}
+            </label>
+            {/* Relative wrapper keeps the button tracked inside the input bounds */}
+            <div className="relative flex items-center">
+              <Input
+                type={showPassword ? "text" : "password"} // Switches input mask rules instantly
+                placeholder="min 8 characters"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
+                required={!editingUser} // Form rule changes depending on mode
+                className="pr-10" // Extra padding-right stops text running underneath the icon button
+              />
+              <button
+                type="button" // CRITICAL: Must be type="button" so it doesn't accidentally trigger form submit
+                onClick={() => setShowPassword(!showPassword)}
+                disabled={loading}
+                className="absolute right-3 text-gray-400 hover:text-gray-600 focus:outline-none disabled:opacity-50 transition-colors"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
             <Select value={role} onChange={(e) => setRole(e.target.value)} disabled={loading}>
+              <SelectOption value="WHOLESALER_ADMIN">WHOLESALER_ADMIN</SelectOption>
               <SelectOption value="SALES_MANAGER">SALES_MANAGER</SelectOption>
               <SelectOption value="SALESPERSON">SALESPERSON</SelectOption>
             </Select>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsOpen(false)} disabled={loading}>
+            <Button type="button" variant="outline" onClick={handleCloseModal} disabled={loading}>
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Creating..." : "Create User"}
+              {loading ? "Saving..." : editingUser ? "Update User" : "Create User"}
             </Button>
           </DialogFooter>
         </form>
@@ -166,7 +242,7 @@ export default function Users() {
                   <TableHead>Username</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Role</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -184,15 +260,24 @@ export default function Users() {
                         {u.role}
                       </span>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-right whitespace-nowrap">
                       {authUser?.role === "WHOLESALER_ADMIN" && (
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDeleteUser(u.id)}
-                        >
-                          Delete
-                        </Button>
+                        <div className="flex gap-2 justify-end">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openEditModal(u)} // Connected missing Edit routing hook
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDeleteUser(u.id)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
                       )}
                     </TableCell>
                   </TableRow>

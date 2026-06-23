@@ -17,7 +17,7 @@ class Hub(models.Model):
 '''Product Model'''
 class Product(models.Model):
     isbn = models.CharField(
-        max_length=13,
+        max_length=15,
         unique=True
     )
 

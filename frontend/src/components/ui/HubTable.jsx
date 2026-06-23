@@ -1,52 +1,65 @@
 import React from 'react'
+import { Button } from './Button'
+import { 
+  Table, 
+  TableHeader, 
+  TableBody, 
+  TableRow, 
+  TableHead, 
+  TableCell 
+} from './Table' // Adjust this path based on your folder structure
 
-export default function HubTable({
-  hubs,
-  onEdit,
-  onDelete
-}) {
+export default function HubTable({ hubs = [], onEdit, onDelete }) {
   return (
-    <table className="w-full border">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Address</th>
-          <th>Created</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
+    <div className="w-full overflow-x-auto rounded-lg border border-gray-200">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Address</TableHead>
+            <TableHead>Created</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
 
-      <tbody>
-        {hubs.map((hub) => (
-          <tr key={hub.id}>
-            <td>{hub.name}</td>
+        <TableBody>
+          {hubs.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={4} className="text-center py-8 text-gray-500">
+                No hubs available.
+              </TableCell>
+            </TableRow>
+          ) : (
+            hubs.map((hub) => (
+              <TableRow key={hub.id}>
+                <TableCell className="font-medium">{hub.name}</TableCell>
+                <TableCell>{hub.address}</TableCell>
+                <TableCell>
+                  {new Date(hub.created_at).toLocaleDateString()}
+                </TableCell>
+                <TableCell className="text-right whitespace-nowrap">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => onEdit(hub)}
+                    className="mr-2"
+                  >
+                    Edit
+                  </Button>
 
-            <td>{hub.address}</td>
-
-            <td>
-              {new Date(
-                hub.created_at
-              ).toLocaleDateString()}
-            </td>
-
-            <td>
-              <button
-                onClick={() => onEdit(hub)}
-                className="mr-2"
-              >
-                Edit
-              </button>
-
-              <button
-                onClick={() => onDelete(hub.id)}
-                className="text-red-600"
-              >
-                Delete
-              </button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => onDelete(hub.id)}
+                  >
+                    Delete
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </div>
   )
 }

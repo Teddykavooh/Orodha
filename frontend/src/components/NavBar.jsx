@@ -15,18 +15,32 @@ export default function NavBar() {
   const dispatch = useDispatch();
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
+  const businessName = localStorage.getItem("business_name") || "Orodha"
 
   function redirectToLogin() {
+    localStorage.removeItem("business_name")
     navigate("/login")
   }
 
   return (
     <nav className="bg-white border-b border-gray-300 px-6 py-4 flex justify-between items-center shadow-sm">
       {/* Logo - always visible */}
-      <Link to="/" className="font-bold text-xl text-blue-600 hover:text-blue-700 transition-colors">
-        Orodha
-      </Link>
-
+      {user ? 
+        (
+          <>
+            <Link to="/" className="font-bold text-xl text-blue-600 hover:text-blue-700 transition-colors">
+              {businessName}
+            </Link>
+          </>
+        ) : (
+          <>
+            <Link to="/" className="font-bold text-xl text-blue-600 hover:text-blue-700 transition-colors">
+              Orodha
+            </Link>
+          </>
+        )
+      }
+      
       {/* Navigation links - only visible when authenticated */}
       {user && (
         <div className="hidden md:flex gap-8 items-center">
@@ -41,6 +55,9 @@ export default function NavBar() {
           </Link>
           <Link to="/products" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
             Products
+          </Link>
+          <Link to="/inventory" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
+            Inventory
           </Link>
           <Link to="/sales" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
             Sales
@@ -116,6 +133,14 @@ export default function NavBar() {
                 onClick={() => setMobileOpen(false)}
               >
                 Products
+              </Link>
+
+              <Link
+                to="/inventory"
+                className="block"
+                onClick={() => setMobileOpen(false)}
+              >
+                Inventory
               </Link>
 
               <Link

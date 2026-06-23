@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchProducts, createProduct, deleteProduct } from '../features/products/productsSlice'
+import { fetchProducts, createProduct, deleteProduct, updateProduct } from '../features/products/productsSlice'
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
@@ -27,33 +27,83 @@ export default function Products() {
   const productsError = useSelector(state => state.products.error)
   const authUser = useSelector(state => state.auth.user)
 
-  const [name, setName] = useState("");
-  const [sku, setSku] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  // Form Field States
+  const [isbn, setIsbn] = useState("")
+  const [title, setTitle] = useState("")
+  const [author, setAuthor] = useState("")
+  const [category, setCategory] = useState("")
+  const [base_price, setBasePrice] = useState("")
+  
+  // UI Flow Control States
+  const [isOpen, setIsOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [editingProduct, setEditingProduct] = useState(null) // Corrected: Added missing state tracking
 
   // Fetch products on component mount
   useEffect(() => {
     dispatch(fetchProducts())
   }, [dispatch]);
 
+  // Open modal in fresh "Create" configuration
+  function openCreateModal() {
+    setEditingProduct(null)
+    setIsbn("")
+    setTitle("")
+    setAuthor("")
+    setCategory("")
+    setBasePrice("")
+    setIsOpen(true)
+  }
+
+  // Open modal pre-populated in "Edit" configuration
+  function openEditModal(product) {
+    setEditingProduct(product)
+    setIsbn(product.isbn || "")
+    setTitle(product.title || "")
+    setAuthor(product.author || "")
+    setCategory(product.category || "")
+    setBasePrice(product.base_price || "")
+    setIsOpen(true)
+  }
+
+  // Close modal and clear form variables
+  function handleCloseModal() {
+    setIsOpen(false)
+    setEditingProduct(null)
+    setIsbn("")
+    setTitle("")
+    setAuthor("")
+    setCategory("")
+    setBasePrice("")
+  }
+
   /**
-   * Handle product creation via Redux thunk dispatch.
+   * Combined form submission router for Create and Update actions
    */
-  async function handleCreateProduct(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    if (!name) {
-      alert("Product name is required");
+    if (!title) {
+      alert("Product title is required");
       return;
     }
+    
     setLoading(true);
+    const payload = { isbn, title, author, category, base_price };
+
     try {
-      const result = await dispatch(createProduct({ name, sku })).unwrap();
-      setName("");
-      setSku("");
-      setIsOpen(false);
+      if (editingProduct) {
+        // Mode: Update Existing Product
+        await dispatch(updateProduct({
+          id: editingProduct.id,
+          data: payload
+        })).unwrap();
+      } else {
+        // Mode: Create New Product
+        await dispatch(createProduct(payload)).unwrap();
+      }
+      handleCloseModal();
     } catch (err) {
-      alert(err?.message || "Failed to create product");
+      alert(err?.message || `Failed to ${editingProduct ? 'update' : 'create'} product`);
     } finally {
       setLoading(false);
     }
@@ -76,7 +126,7 @@ export default function Products() {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">Products</h2>
         {authUser?.role === "WHOLESALER_ADMIN" && (
-          <Button onClick={() => setIsOpen(true)} disabled={productsStatus === 'loading'}>
+          <Button onClick={openCreateModal} disabled={productsStatus === 'loading'}>
             Add Product
           </Button>
         )}
@@ -89,43 +139,75 @@ export default function Products() {
         </div>
       )}
 
-      {/* Create product dialog modal */}
-      <Dialog isOpen={isOpen} onClose={() => setIsOpen(false)} className="max-w-md">
+      {/* Dialog modal for creating or editing products */}
+      <Dialog isOpen={isOpen} onClose={handleCloseModal} className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Create Product</DialogTitle>
+          <DialogTitle>{editingProduct ? "Edit Product" : "Create Product"}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleCreateProduct} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Product name *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">ISBN</label>
             <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Widget Pro"
+              value={isbn}
+              onChange={(e) => setIsbn(e.target.value)}
+              placeholder="e.g., 9781234567890"
+              disabled={loading}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Product Title *</label>
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g., Book Title"
               disabled={loading}
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">SKU</label>
+            <label className="block text-sm font-medium mb-1">Author</label>
             <Input
-              value={sku}
-              onChange={(e) => setSku(e.target.value)}
-              placeholder="e.g., SKU-12345"
+              value={author}
+              onChange={(e) => setAuthor(e.target.value)}
+              placeholder="Author Name"
               disabled={loading}
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Category</label>
+            <Input
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              placeholder="Education"
+              disabled={loading}
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Base Price</label>
+            <Input
+              type="number"
+              step="0.01"
+              value={base_price}
+              onChange={(e) => setBasePrice(e.target.value)}
+              placeholder="1500"
+              disabled={loading}
+              required
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsOpen(false)} disabled={loading}>
+            <Button type="button" variant="outline" onClick={handleCloseModal} disabled={loading}>
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Creating..." : "Create Product"}
+              {loading ? "Saving..." : editingProduct ? "Update Product" : "Create Product"}
             </Button>
           </DialogFooter>
         </form>
       </Dialog>
 
-      {/* Products list */}
+      {/* Products list layout container */}
       <Card>
         <CardContent className="pt-6">
           {productsStatus === 'loading' && <p className="text-gray-500 text-center py-6">Loading products...</p>}
@@ -137,17 +219,29 @@ export default function Products() {
               {products.map((p) => (
                 <li key={p.id} className="flex justify-between items-center p-4 border border-gray-200 rounded hover:bg-gray-50 transition-colors">
                   <div>
-                    <p className="font-medium text-gray-900">{p.name}</p>
-                    {p.sku && <p className="text-sm text-gray-500">SKU: {p.sku}</p>}
+                    <p className="text-sm text-gray-500">ISBN: {p.isbn}</p>
+                    <p className="font-semibold text-gray-900">{p.title}</p>
+                    <p className="text-sm text-gray-500">Author: {p.author}</p>
+                    <p className="text-sm text-gray-500">Category: {p.category}</p>
+                    <p className="text-sm font-medium text-green-700">KES {p.base_price}</p>
                   </div>
                   {authUser?.role === "WHOLESALER_ADMIN" && (
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDeleteProduct(p.id)}
-                    >
-                      Delete
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => openEditModal(p)} // Corrected: Links cleanly to modal mapper
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDeleteProduct(p.id)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
                   )}
                 </li>
               ))}
@@ -156,5 +250,5 @@ export default function Products() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

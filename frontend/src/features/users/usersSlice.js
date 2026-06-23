@@ -19,6 +19,13 @@ export const createUser = createAsyncThunk('users/createUser', async (userData, 
   return res.data
 })
 
+// Update User Thunk (Added)
+export const updateUser = createAsyncThunk('users/updateUser', async ({ id, data }, thunkAPI) => {
+  // Sends a PATCH request to perform a partial update (great for optional passwords)
+  const res = await tenantApi.patch(`/users/${id}/`, data);
+  return res.data;
+});
+
 /**
  * deleteUser: DELETE /api/users/{id}/
  * Deletes a user by ID (only available for WHOLESALER_ADMIN).
@@ -56,6 +63,14 @@ const usersSlice = createSlice({
       })
       .addCase(createUser.rejected, (state, action) => {
         state.error = action.error.message
+      })
+      // Update User Lifecycle (Added)
+      .addCase(updateUser.fulfilled, (state, action) => {
+        // Find the user by ID and replace its values with the updated profile data from the server
+        const index = state.items.findIndex((user) => user.id === action.payload.id);
+        if (index !== -1) {
+          state.items[index] = action.payload;
+        }
       })
       // Delete user
       .addCase(deleteUser.fulfilled, (state, action) => {

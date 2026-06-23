@@ -16,10 +16,18 @@ export const fetchSales = createAsyncThunk('sales/fetchSales', async (_, thunkAP
  * createSale: POST /api/sales/
  * Creates a new sale with items, quantities, customer info, and optional note.
  */
-export const createSale = createAsyncThunk('sales/createSale', async (saleData, thunkAPI) => {
-  const res = await tenantApi.post('/sales/', saleData)
-  return res.data
-})
+// export const createSale = createAsyncThunk('sales/createSale', async (saleData, thunkAPI) => {
+//   const res = await tenantApi.post('/sales/', saleData)
+//   return res.data
+// })
+export const createSale = createAsyncThunk('sales/createSale', async ({ bookItemId, salePrice }, thunkAPI) => {
+  // Maps variables directly onto your Django serializer keys
+  const res = await tenantApi.post('/sales/', {
+    book_item: bookItemId,
+    sale_price: salePrice
+  });
+  return res.data;
+});
 
 /**
  * updateSale: PUT /api/sales/{id}/
