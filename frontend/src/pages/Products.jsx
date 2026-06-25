@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux'
+import { BookOpen } from "lucide-react";
 import { fetchProducts, createProduct, deleteProduct, updateProduct } from '../features/products/productsSlice'
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -125,7 +126,13 @@ export default function Products() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Products</h2>
+        <div className="flex justify-start gap-3 items-center border-b border-gray-200 pb-4 mb-6">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+            Products
+          </h1>
+          {/* Large, custom-branded blue dashboard icon */}
+          <BookOpen className="h-8 w-8 text-blue-600 transition-transform duration-200 hover:scale-110" />
+        </div>
         {authUser?.role === "ADMIN" && (
           <Button onClick={openCreateModal} disabled={productsStatus === 'loading'}>
             Add Product

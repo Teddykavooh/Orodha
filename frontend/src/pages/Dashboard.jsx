@@ -5,6 +5,7 @@ import { fetchUsers } from '../features/users/usersSlice'
 import { fetchProducts } from '../features/products/productsSlice'
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "../components/ui/Table";
+import { LayoutDashboard, TrendingUp, Users, BookOpen } from "lucide-react"; // Imported crisp structural icons
 
 /**
  * Dashboard: displays KPI cards (total sales, active users, products) and recent sales.
@@ -54,40 +55,78 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+      <div className="flex justify-start gap-3 items-center border-b border-gray-200 pb-4 mb-6">
+        <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+          Dashboard
+        </h1>
+        {/* Large, custom-branded blue dashboard icon */}
+        <LayoutDashboard className="h-8 w-8 text-blue-600 transition-transform duration-200 hover:scale-110" />
+      </div>
       
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Total Sales Card */}
-        <Card>
+        <Card className="overflow-hidden hover:shadow-md transition-shadow">
           <CardContent className="pt-6">
-            <p className="text-sm text-gray-600 mb-1">Total Sales</p>
-            <p className="text-3xl font-bold text-gray-900">
-              {salesStatus === 'loading' ? '-' : sales.length}
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-sm font-medium text-gray-500 mb-1">Total Sales</p>
+                <p className="text-3xl font-bold text-gray-900 tracking-tight">
+                  {salesStatus === 'loading' ? '-' : sales.length}
+                </p>
+              </div>
+              {/* Green Colored Badge Indicator Container */}
+              {/* <div className="p-3 bg-green-50 rounded-lg text-green-600 border border-green-100 shadow-sm"> */}
+              <div className="p-5 bg-green-50 rounded-xl text-green-600 border border-green-100 shadow-sm flex items-center justify-center">
+                <TrendingUp className="h-10 w-10" />
+              </div>
+            </div>
+            <p className="text-xs text-gray-400 mt-4 flex items-center gap-1">
+              <span className="font-semibold text-green-700 bg-green-50 px-1.5 py-0.5 rounded">Live</span>
+              sales records logged
             </p>
-            <p className="text-xs text-gray-500 mt-2">sales records</p>
           </CardContent>
         </Card>
 
         {/* Active Users Card */}
-        <Card>
+        <Card className="overflow-hidden hover:shadow-md transition-shadow">
           <CardContent className="pt-6">
-            <p className="text-sm text-gray-600 mb-1">Active Users</p>
-            <p className="text-3xl font-bold text-gray-900">
-              {usersStatus === 'loading' ? '-' : users.length}
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-sm font-medium text-gray-500 mb-1">Active Users</p>
+                <p className="text-3xl font-bold text-gray-900 tracking-tight">
+                  {usersStatus === 'loading' ? '-' : users.length}
+                </p>
+              </div>
+              {/* Blue Colored Badge Indicator Container */}
+              <div className="p-5 bg-blue-50 rounded-xl text-blue-600 border border-blue-100 shadow-sm flex items-center justify-center">
+                <Users className="h-10 w-10" />
+              </div>
+            </div>
+            <p className="text-xs text-gray-400 mt-4">
+              registered accounts in system
             </p>
-            <p className="text-xs text-gray-500 mt-2">users in system</p>
           </CardContent>
         </Card>
 
         {/* Total Products Card */}
-        <Card>
+        <Card className="overflow-hidden hover:shadow-md transition-shadow">
           <CardContent className="pt-6">
-            <p className="text-sm text-gray-600 mb-1">Total Products</p>
-            <p className="text-3xl font-bold text-gray-900">
-              {productsStatus === 'loading' ? '-' : products.length}
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-sm font-medium text-gray-500 mb-1">Total Products</p>
+                <p className="text-3xl font-bold text-gray-900 tracking-tight">
+                  {productsStatus === 'loading' ? '-' : products.length}
+                </p>
+              </div>
+              {/* Indigo/Purple Colored Badge Indicator Container */}
+              <div className="p-5 bg-indigo-50 rounded-xl text-indigo-600 border border-indigo-100 shadow-sm flex items-center justify-center">
+                <BookOpen className="h-10 w-10" />
+              </div>
+            </div>
+            <p className="text-xs text-gray-400 mt-4">
+              products mapped in catalog
             </p>
-            <p className="text-xs text-gray-500 mt-2">products in inventory</p>
           </CardContent>
         </Card>
       </div>

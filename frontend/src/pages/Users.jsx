@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux'
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Users as UsersIcon } from 'lucide-react';
 
 import { fetchUsers, createUser, deleteUser, updateUser } from '../features/users/usersSlice'
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
@@ -137,7 +137,13 @@ export default function Users() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Users</h2>
+        <div className="flex justify-start gap-3 items-center border-b border-gray-200 pb-4 mb-6">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+            Users
+          </h1>
+          {/* Large, custom-branded blue dashboard icon */}
+          <UsersIcon className="h-8 w-8 text-blue-600 transition-transform duration-200 hover:scale-110" />
+        </div>
         {authUser?.role === "ADMIN" && (
           <Button onClick={openCreateModal} disabled={usersStatus === 'loading'}>
             Add User

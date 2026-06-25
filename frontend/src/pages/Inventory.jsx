@@ -24,6 +24,7 @@ import {
 } from "../components/ui/Dialog";
 
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "../components/ui/Table";
+import { Package2Icon, PackageIcon } from "lucide-react";
 
 export default function Inventory() {
   const dispatch = useDispatch();
@@ -112,9 +113,13 @@ export default function Inventory() {
     <div className="space-y-4">
 
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">
-          Inventory
-        </h2>
+        <div className="flex justify-start gap-3 items-center border-b border-gray-200 pb-4 mb-6">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+            Inventory
+          </h1>
+          {/* Large, custom-branded blue dashboard icon */}
+          <PackageIcon className="h-8 w-8 text-blue-600 transition-transform duration-200 hover:scale-110" />
+        </div>
 
         {authUser?.role === "ADMIN" && (
           <Button onClick={() => {

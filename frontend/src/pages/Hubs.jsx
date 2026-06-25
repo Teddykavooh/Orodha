@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { fetchHubs, createHub, updateHub, deleteHub } from '../features/hubs/hubsSlice'
 import HubForm from '../components/ui/HubForm'
 import HubTable from '../components/ui/HubTable'
+import { Layers } from 'lucide-react'
 
 export default function Hubs() {
 
@@ -51,10 +52,13 @@ export default function Hubs() {
 
   return (
     <div className="space-y-6">
-
-      <h1 className="text-2xl font-bold">
-        Hubs
-      </h1>
+      <div className="flex justify-start gap-3 items-center border-b border-gray-200 pb-4 mb-6">
+        <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+          Hubs
+        </h1>
+        {/* Large, custom-branded blue dashboard icon */}
+        <Layers className="h-8 w-8 text-blue-600 transition-transform duration-200 hover:scale-110" />
+      </div>
 
       <div className="border p-4 rounded">
 
