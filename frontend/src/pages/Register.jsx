@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Eye, EyeOff, Image, Link2 } from 'lucide-react';
 
 import { publicApi } from "../services/api";
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'

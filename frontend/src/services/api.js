@@ -36,8 +36,12 @@ function setToken(token) {
 }
 
 function setOrganisation(org) {
-  // console.log("setOrganisation: ", org)
-  localStorage.setItem("organisation", org)
+  // If org is null, undefined, or empty, save an empty string instead of "null"
+  if (!org || org === "null" || org === "undefined") {
+    localStorage.removeItem("organisation");
+  } else {
+    localStorage.setItem("organisation", org);
+  }
 }
 
 setToken(localStorage.getItem("token"));

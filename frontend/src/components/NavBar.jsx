@@ -71,7 +71,7 @@ export default function NavBar() {
             />
           ) : (
             <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-sm shadow-sm tracking-tighter">
-              {user ? businessName.charAt(0).toUpperCase() : "M"}
+              {user ? businessName.charAt(0).toUpperCase() : "mB"}
             </div>
           )}
           

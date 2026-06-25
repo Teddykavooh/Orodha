@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from 'react-redux'
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, LogIn } from 'lucide-react';
 
 import { fetchMe, login } from '../features/auth/authSlice'
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
@@ -14,9 +14,10 @@ import { Button } from '../components/ui/Button'
  * Shows error messages on failure.
  */
 export default function Login() {
+  const storedOrg = localStorage.getItem("organisation");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [organisation, setOrganisation] = useState(localStorage.getItem("organisation") || "")
+  const [organisation, setOrganisation] = useState(storedOrg && storedOrg !== "null" && storedOrg !== "undefined" ? storedOrg : "");
   const [adminPassword, setAdminPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   // const [msg, setMsg] = useState(null);
@@ -30,7 +31,6 @@ export default function Login() {
     setLoading(true);
     try {
       const res = await dispatch(login({ organisation, username, password })).unwrap()
-      const authChack = await dispatch
       // console.log(res);
       // console.log("This is me domain: ", res.tenant.tenant_domain);
       // console.log("This is me token: ", res.token);
@@ -67,7 +67,7 @@ export default function Login() {
       // }, 1500);
 
     } catch (err) {
-      console.log("Log in err: ", err);
+      // console.log("Log in err: ", err);
       setError(err?.message || String(err));
     } finally {
       setLoading(false);
@@ -78,7 +78,7 @@ export default function Login() {
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Login</CardTitle>
+          <CardTitle className="text-2xl text-center">Login</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
