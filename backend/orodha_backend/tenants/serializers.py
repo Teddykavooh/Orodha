@@ -134,7 +134,7 @@ class TenantRegistrationSerializer(serializers.Serializer):
 
         return {
             "message": "Registration successful",
-            "login_url": f"{os.getenv("FRONTEND_PROTOCOL")}://{domain.domain}:{os.getenv("FRONTEND_PORT")}/login",
+            # "login_url": f"{os.getenv("FRONTEND_PROTOCOL")}://{domain.domain}:{os.getenv("FRONTEND_PORT")}/login",
             "tenant": {
                 "id": tenant.id,
                 "schema_name": tenant.schema_name,
