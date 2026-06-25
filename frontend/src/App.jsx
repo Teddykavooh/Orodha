@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { Navigate, Routes, Route } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-// Redux store provides auth state
-import NavBar from "./components/NavBar";
+
+import AppLayout from "./components/AppLayout"; // Imported layout wrapper containing sidebar
 import Landing from "./pages/Landing";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
@@ -18,7 +18,11 @@ function ProtectedRoute({ children }) {
   const { token, user, status } = useSelector((state) => state.auth);
 
   if (token && !user && status !== "failed") {
-    return <div className="text-gray-500">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen text-gray-500 font-medium">
+        Loading user workspace profile...
+      </div>
+    );
   }
 
   if (!token || (!user && status === "failed")) {
@@ -28,7 +32,6 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
-// App sets up Auth context and routes. Keep routes simple for MVP.
 export default function App() {
   const dispatch = useDispatch();
   const { token, user, status } = useSelector((state) => state.auth);
@@ -40,21 +43,21 @@ export default function App() {
   }, [dispatch, status, token, user]);
 
   return (
-    <>
-      <NavBar />
-      <main style={{ padding: 16 }}>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
-          <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
-          <Route path="/sales" element={<ProtectedRoute><Sales /></ProtectedRoute>} />
-          <Route path="/hubs" element={<ProtectedRoute><Hubs /></ProtectedRoute>} />
-          <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
-        </Routes>
-      </main>
-    </>
+    <AppLayout>
+      <Routes>
+        {/* Unauthenticated Public Guest Routes */}
+        <Route path="/" element={<Landing />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        
+        {/* Authenticated Application Workspace Routes */}
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
+        <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
+        <Route path="/sales" element={<ProtectedRoute><Sales /></ProtectedRoute>} />
+        <Route path="/hubs" element={<ProtectedRoute><Hubs /></ProtectedRoute>} />
+        <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
+      </Routes>
+    </AppLayout>
   );
 }
