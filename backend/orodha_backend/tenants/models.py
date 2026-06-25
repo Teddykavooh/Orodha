@@ -13,17 +13,19 @@ class Client(TenantMixin):
         max_length=255
     )
 
-    logo = models.CharField(
-        max_length=255,
-        blank=True
+     # Option A: Local File Uploads
+    logo_file = models.ImageField(
+        upload_to="tenant_logos/",
+        blank=True,
+        null=True
     )
 
-    # for later
-    # logo = models.ImageField(
-    #     upload_to="tenant_logos/",
-    #     blank=True,
-    #     null=True
-    # )
+    # Option B: External Image Links (Added)
+    logo_url = models.URLField(
+        max_length=1000,
+        blank=True,
+        null=True
+    )
 
     tagline = models.CharField(
         max_length=255,

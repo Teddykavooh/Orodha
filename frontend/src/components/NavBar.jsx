@@ -70,11 +70,15 @@ export default function NavBar() {
       <div className="hidden md:flex gap-3 items-center">
         {user ? (
           <>
-            <span className="text-gray-900 font-semibold text-sm">{user.username}</span>
-            <Button variant="outline" size="sm" onClick={() => {
-              dispatch(logout());
-              redirectToLogin();
-            }}>
+            <span className="text-blue-600 font-semibold text-sm">{user.username}</span>
+            <Button
+              variant="outline"
+              size="sm" onClick={() => {
+                dispatch(logout());
+                redirectToLogin();
+              }}
+              className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-colors"
+            >
               Logout
             </Button>
           </>
@@ -103,11 +107,11 @@ export default function NavBar() {
               <NavLink to="/sales" className={getMobileNavLinkClass} onClick={() => setMobileOpen(false)}>Sales</NavLink>
 
               <div className="pt-4 border-t border-gray-200 mt-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 px-2 mb-2">
-                  Logged in as: {user.username}
+                <p className="text-xs font-semibold uppercase tracking-wider text-grey-400 px-2 mb-2">
+                  Logged in as: <span className="text-blue-600">{user.username}</span>
                 </p>
                 <Button
-                  className="w-full mt-1"
+                  className="w-full mt-1 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-colors"
                   variant="outline"
                   onClick={() => {
                     dispatch(logout());

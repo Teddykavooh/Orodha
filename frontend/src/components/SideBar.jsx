@@ -18,6 +18,7 @@ export default function Sidebar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const businessName = localStorage.getItem("business_name") || "myBook";
+  const businessLogoUrl = useSelector((state) => state.auth.logo) || "";
 
   function handleLogout() {
     dispatch(logout());
@@ -40,11 +41,47 @@ export default function Sidebar() {
   return (
     <aside className="w-64 min-h-screen bg-white border-r border-gray-300 flex flex-col justify-between hidden md:flex sticky top-0">
       <div className="flex flex-col space-y-6">
-        {/* Workspace Brand Title Box */}
-        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
-          <Link to="/dashboard" className="font-bold text-xl text-blue-600 hover:text-blue-700 transition-colors">
-            {businessName}
-          </Link>
+        <div className="flex flex-col w-full border-b border-gray-200">
+          {/* Extended Branded Logo Banner Header */}
+          <div className="w-full h-24 bg-blue-600 flex items-center justify-center shadow-inner relative overflow-hidden">
+            {/* Subtle Graphic Layer Accent to give the banner premium texture */}
+            <div className="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:16px_16px]" />
+            {businessLogoUrl ? (
+              /* 🖼️ Proportional Database Image Container */
+              <div className="w-full h-full px-6 flex items-center justify-center relative z-10">
+                <img
+                  src={businessLogoUrl}
+                  alt={`${businessName} Logo`}
+                  /* 
+                    object-contain: Guarantees the image scales proportionally without cropping.
+                    max-h-16: Keeps the image from touching the edges and drowning the top bar area.
+                  */
+                  className="w-full max-h-16 object-contain filter drop-shadow-sm transition-transform duration-200 hover:scale-105"
+                  onError={(e) => {
+                    // Fallback safety handler if the image link breaks or returns 404
+                    e.target.style.display = 'none';
+                  }}
+                />
+              </div>
+            ) : (
+              /* 🔤 Fallback Typography Logo (If no database image exists) */
+              <span className="text-white font-black text-2xl tracking-widest uppercase relative z-10">
+                LOGO
+              </span>
+            )}
+          </div>
+
+          {/* Business Workspace Title Link Tray */}
+          <div className="px-6 py-4 bg-gray-50/50 flex items-center justify-between">
+            <Link 
+              to="/dashboard" 
+              className="font-bold text-lg text-gray-900 hover:text-blue-600 transition-colors truncate"
+              title={businessName}
+            >
+              {businessName}
+            </Link>
+            <span className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse" title="System Active" />
+          </div>
         </div>
 
         {/* Navigation Link Stack */}
@@ -86,15 +123,16 @@ export default function Sidebar() {
         <div className="flex flex-col space-y-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Logged in as</p>
-            <p className="text-sm font-medium text-gray-900 truncate">{user.username}</p>
+            <p className="text-sm font-medium text-blue-600 truncate">{user.username}</p>
             <p className="text-xs text-gray-500 font-mono">{user.role}</p>
           </div>
           <Button 
             variant="outline" 
             size="sm" 
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-100"
+            className="w-full flex items-center justify-center gap-2 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-colors"
           >
+            {/* The icon inherits the text color automatically via 'currentColor' */}
             <LogOut className="h-4 w-4" />
             <span>Sign Out</span>
           </Button>

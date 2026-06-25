@@ -22,14 +22,10 @@ class TenantRegistrationSerializer(serializers.Serializer):
     """
 
     schema_name = serializers.SlugField(max_length=63)
-    # name = serializers.CharField(max_length=255)
     business_name = serializers.CharField(max_length=255)
-    logo = serializers.CharField(max_length=255, required=False, allow_blank=True)
-    # for later
-    # logo = serializers.ImageField(
-    #     required=False,
-    #     allow_null=True
-    # )
+    # Expose both incoming properties to the registration endpoint
+    logo_file = serializers.ImageField(required=False, allow_null=True)
+    logo_url = serializers.URLField(required=False, allow_blank=True, allow_null=True)
     tagline = serializers.CharField(max_length=255, required=False, allow_blank=True)
     primary_color = serializers.CharField(max_length=7, required=False)
     secondary_color = serializers.CharField(max_length=7, required=False)
@@ -132,6 +128,13 @@ class TenantRegistrationSerializer(serializers.Serializer):
         domain = instance["domain"]
         admin = instance["admin"]
 
+         # Smart Fallback Priority Selection: File Upload takes precedence over Text Link
+        resolved_logo = None
+        if tenant.logo_file:
+            resolved_logo = tenant.logo_file.url
+        elif tenant.logo_url:
+            resolved_logo = tenant.logo_url
+
         return {
             "message": "Registration successful",
             # "login_url": f"{os.getenv("FRONTEND_PROTOCOL")}://{domain.domain}:{os.getenv("FRONTEND_PORT")}/login",
@@ -139,6 +142,7 @@ class TenantRegistrationSerializer(serializers.Serializer):
                 "id": tenant.id,
                 "schema_name": tenant.schema_name,
                 "business_name": tenant.business_name,
+                "logo": resolved_logo, # Frontend receives a single, predictable absolute string URL
                 "domain": domain.domain,
             },
             "admin": {
