@@ -11,13 +11,13 @@ import { Select, SelectOption } from '../components/ui/Select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/Dialog'
 
 /**
- * Users page: displays a table of users from Redux store and allows WHOLESALER_ADMIN to create/delete.
+ * Users page: displays a table of users from Redux store and allows ADMIN to create/delete.
  * 
  * Data flow:
  * - Fetches users via Redux `fetchUsers` thunk on mount
  * - Creates users via `createUser` thunk with dialog modal
  * - Deletes users via `deleteUser` thunk with confirmation
- * - Only WHOLESALER_ADMIN can create/delete users
+ * - Only ADMIN can create/delete users
  * 
  * UI:
  * - Shadcn Table component for responsive user list
@@ -35,7 +35,7 @@ export default function Users() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("SALESPERSON");
+  const [role, setRole] = useState("MERCHANDISER");
   const [showPassword, setShowPassword] = useState(false);
   
   // UI Flow Control States
@@ -54,7 +54,7 @@ export default function Users() {
     setUsername("")
     setPassword("")
     setEmail("")
-    setRole("SALESPERSON")
+    setRole("MERCHANDISER")
     setIsOpen(true)
   }
 
@@ -64,7 +64,7 @@ export default function Users() {
     setUsername(user.username || "")
     setPassword("") // Clear password field completely for safety
     setEmail(user.email || "")
-    setRole(user.role || "SALESPERSON")
+    setRole(user.role || "MERCHANDISER")
     setIsOpen(true)
   }
 
@@ -75,7 +75,7 @@ export default function Users() {
     setUsername("")
     setPassword("")
     setEmail("")
-    setRole("SALESPERSON")
+    setRole("MERCHANDISER")
     setShowPassword(false)
   }
 
@@ -138,7 +138,7 @@ export default function Users() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">Users</h2>
-        {authUser?.role === "WHOLESALER_ADMIN" && (
+        {authUser?.role === "ADMIN" && (
           <Button onClick={openCreateModal} disabled={usersStatus === 'loading'}>
             Add User
           </Button>
@@ -211,9 +211,9 @@ export default function Users() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
             <Select value={role} onChange={(e) => setRole(e.target.value)} disabled={loading}>
-              <SelectOption value="WHOLESALER_ADMIN">WHOLESALER_ADMIN</SelectOption>
-              <SelectOption value="SALES_MANAGER">SALES_MANAGER</SelectOption>
-              <SelectOption value="SALESPERSON">SALESPERSON</SelectOption>
+              <SelectOption value="ADMIN">ADMIN</SelectOption>
+              <SelectOption value="MANAGER">MANAGER</SelectOption>
+              <SelectOption value="MERCHANDISER">MERCHANDISER</SelectOption>
             </Select>
           </div>
           <DialogFooter>
@@ -253,15 +253,15 @@ export default function Users() {
                     <TableCell className="text-sm text-gray-600">{u.email || "-"}</TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                        u.role === 'WHOLESALER_ADMIN' ? 'bg-red-100 text-red-800' :
-                        u.role === 'SALES_MANAGER' ? 'bg-blue-100 text-blue-800' :
+                        u.role === 'ADMIN' ? 'bg-red-100 text-red-800' :
+                        u.role === 'MANAGER' ? 'bg-blue-100 text-blue-800' :
                         'bg-green-100 text-green-800'
                       }`}>
                         {u.role}
                       </span>
                     </TableCell>
                     <TableCell className="text-right whitespace-nowrap">
-                      {authUser?.role === "WHOLESALER_ADMIN" && (
+                      {authUser?.role === "ADMIN" && (
                         <div className="flex gap-2 justify-end">
                           <Button
                             variant="outline"

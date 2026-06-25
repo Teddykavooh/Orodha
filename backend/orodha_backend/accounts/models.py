@@ -5,9 +5,9 @@ from django.contrib.auth.models import AbstractUser
 # Create your models here.
 class UserProfile(AbstractUser):
     ROLE_CHOICES = (
-        ("WHOLESALER_ADMIN", "Wholesaler Admin"),
-        ("SALES_MANAGER", "Sales Manager"),
-        ("SALESPERSON", "Salesperson"),
+        ("ADMIN", "Admin"),
+        ("MANAGER", "Manager"),
+        ("MERCHANDISER", "Merchandiser"),
     )
 
     role = models.CharField(

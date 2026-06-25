@@ -108,7 +108,7 @@ class TenantRegistrationSerializer(serializers.Serializer):
                 username=admin_username,
                 email=admin_email,
                 password=admin_password,
-                role="WHOLESALER_ADMIN",
+                role="ADMIN",
                 is_staff=True,
                 # let role-based permissions control access, no full Django superuser privileges
                 is_superuser=False,

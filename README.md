@@ -28,17 +28,17 @@
 
 ## Role Mode
 
-* `WHOLESALER_ADMIN`
+* `ADMIN`
   * full tenant CRUD on all resources
   * create/update/delete hubs, products, users, inventory, sale logs
 
-* `SALES_MANAGER`
+* `MANAGER`
   * read access to their own hub data
-  * can create sales like SALESPERSON
+  * can create sales like MERCHANDISER
   * can view hub users
   * can view sales records for their hub
 
-* `SALESPERSON`
+* `MERCHANDISER`
   * can create sales
   * can view their own sales
   * can view inventory and movement data for their hub

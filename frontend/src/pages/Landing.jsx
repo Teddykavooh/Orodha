@@ -71,7 +71,7 @@ export default function Landing() {
           <Card>
             <CardContent className="pt-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Role-based</h3>
-              <p className="text-sm text-gray-600">Admin, Manager, and Salesperson roles.</p>
+              <p className="text-sm text-gray-600">Admin, Manager, and Merchandiser roles.</p>
             </CardContent>
           </Card>
           <Card>

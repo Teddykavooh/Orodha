@@ -19,9 +19,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
  * - Displays sales in reverse chronological order (most recent first)
  * 
  * Permissions:
- * - WHOLESALER_ADMIN: sees all sales
- * - SALES_MANAGER: sees sales for their hub
- * - SALESPERSON: sees their own sales
+ * - ADMIN: sees all sales
+ * - MANAGER: sees sales for their hub
+ * - MERCHANDISER: sees their own sales
  * 
  * UI:
  * - Dialog modal for creating new sales
@@ -64,7 +64,7 @@ export default function Sales() {
     if (item.status === "SOLD") return false;
 
     // 2. Rule: Wholesaler Admins bypass restriction checks to view total stock
-    if (authUser?.role === "WHOLESALER_ADMIN") return true;
+    if (authUser?.role === "ADMIN") return true;
 
     // 3. Rule: Filter matching the specific physical hub matching user profile profile parameters
     if (authUser?.hub_id) {
@@ -246,8 +246,8 @@ export default function Sales() {
                     <TableHead>Item (ID)</TableHead>
                     <TableHead>Serial Number</TableHead>
                     <TableHead>Item Title</TableHead>
-                    <TableHead>Salesperson (ID)</TableHead>
-                    <TableHead>Salesperson Name</TableHead>
+                    <TableHead>Merchandiser (ID)</TableHead>
+                    <TableHead>Merchandiser Name</TableHead>
                     <TableHead className="text-right">Settled Amount</TableHead>
                   </TableRow>
                 </TableHeader>

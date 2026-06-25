@@ -9,7 +9,7 @@ class TenantRegistrationView(generics.CreateAPIView):
     Public endpoint for onboarding a new wholesaler tenant.
 
     POST /api/tenants/register/ creates the tenant schema, the primary domain,
-    and the first WHOLESALER_ADMIN user.
+    and the first ADMIN user.
     """
 
     serializer_class = TenantRegistrationSerializer

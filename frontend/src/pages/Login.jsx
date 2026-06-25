@@ -43,9 +43,9 @@ export default function Login() {
       // setMsg(res.data.message);
 
       const roleRoutes = {
-        WHOLESALER_ADMIN: "/dashboard",
-        SALES_MANAGER: "/sales",
-        SALESPERSON: "/sales",
+        ADMIN: "/dashboard",
+        MANAGER: "/sales",
+        MERCHANDISER: "/sales",
       };
 
       const destination =

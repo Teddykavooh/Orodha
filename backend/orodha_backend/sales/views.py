@@ -25,11 +25,11 @@ class SaleLogViewSet(viewsets.ModelViewSet):
         user = self.request.user
         role = getattr(user, "role", None)
 
-        if role == "WHOLESALER_ADMIN":
+        if role == "ADMIN":
             return queryset
-        if role == "SALES_MANAGER" and getattr(user, "hub_id", None):
+        if role == "MANAGER" and getattr(user, "hub_id", None):
             return queryset.filter(salesperson__hub_id=user.hub_id)
-        if role == "SALESPERSON":
+        if role == "MERCHANDISER":
             return queryset.filter(salesperson=user)
         return queryset.none()
     

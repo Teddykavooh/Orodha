@@ -23,7 +23,7 @@ class HubViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         user = self.request.user
-        if getattr(user, "role", None) == "WHOLESALER_ADMIN":
+        if getattr(user, "role", None) == "ADMIN":
             return queryset
         if getattr(user, "hub_id", None):
             return queryset.filter(id=user.hub_id)
@@ -53,7 +53,7 @@ class BookItemViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = BookItem.objects.select_related("product", "current_hub").order_by("id")
         user = self.request.user
-        if getattr(user, "role", None) == "WHOLESALER_ADMIN":
+        if getattr(user, "role", None) == "ADMIN":
             return queryset
         if getattr(user, "hub_id", None):
             return queryset.filter(current_hub_id=user.hub_id)
@@ -97,7 +97,7 @@ class InventoryMovementViewSet(viewsets.ModelViewSet):
             "performed_by",
         ).order_by("id")
         user = self.request.user
-        if getattr(user, "role", None) == "WHOLESALER_ADMIN":
+        if getattr(user, "role", None) == "ADMIN":
             return queryset
         if getattr(user, "hub_id", None):
             return queryset.filter(

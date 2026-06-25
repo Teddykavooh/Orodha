@@ -112,7 +112,7 @@ export default function Dashboard() {
                     <TableHead>Receipt ID</TableHead>
                     <TableHead>Timestamp</TableHead>
                     <TableHead>Product Item</TableHead>
-                    <TableHead>Salesperson Agent</TableHead>
+                    <TableHead>Merchandiser</TableHead>
                     <TableHead className="text-right">Price</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -139,7 +139,7 @@ export default function Dashboard() {
                         </div>
                       </TableCell>
                       
-                      {/* Displaying readable Salesperson string reference */}
+                      {/* Displaying readable Merchandiser string reference */}
                       <TableCell className="text-sm text-gray-700">
                         <span className="font-medium text-gray-900">
                           {s.salesperson_name || "System Agent"}

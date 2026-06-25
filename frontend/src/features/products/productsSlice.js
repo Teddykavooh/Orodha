@@ -31,7 +31,7 @@ export const updateProduct = createAsyncThunk('products/updateProduct', async ({
 
 /**
  * deleteProduct: DELETE /api/products/{id}/
- * Deletes a product by ID (only available for WHOLESALER_ADMIN).
+ * Deletes a product by ID (only available for ADMIN).
  */
 export const deleteProduct = createAsyncThunk('products/deleteProduct', async (productId, thunkAPI) => {
   await tenantApi.delete(`/products/${productId}/`)

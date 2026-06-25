@@ -150,7 +150,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = UserProfile.objects.all().order_by("id")
         user = self.request.user
-        if getattr(user, "role", None) == "WHOLESALER_ADMIN":
+        if getattr(user, "role", None) == "ADMIN":
             return queryset
         if getattr(user, "hub_id", None):
             return queryset.filter(hub_id=user.hub_id)

@@ -3,7 +3,7 @@ import { tenantApi } from '../../services/api'
 
 /**
  * fetchUsers: GET /api/users/
- * Retrieves all users (filtered by hub for SALES_MANAGER, all for WHOLESALER_ADMIN).
+ * Retrieves all users (filtered by hub for MANAGER, all for ADMIN).
  */
 export const fetchUsers = createAsyncThunk('users/fetchUsers', async (_, thunkAPI) => {
   const res = await tenantApi.get('/users/')
@@ -28,7 +28,7 @@ export const updateUser = createAsyncThunk('users/updateUser', async ({ id, data
 
 /**
  * deleteUser: DELETE /api/users/{id}/
- * Deletes a user by ID (only available for WHOLESALER_ADMIN).
+ * Deletes a user by ID (only available for ADMIN).
  */
 export const deleteUser = createAsyncThunk('users/deleteUser', async (userId, thunkAPI) => {
   await tenantApi.delete(`/users/${userId}/`)

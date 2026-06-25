@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "../components/ui/Table";
 
 /**
- * Products page: displays products from Redux store and allows WHOLESALER_ADMIN to create/delete.
+ * Products page: displays products from Redux store and allows ADMIN to create/delete.
  * 
  * Data flow:
  * - Fetches products via Redux `fetchProducts` thunk on mount
@@ -126,7 +126,7 @@ export default function Products() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">Products</h2>
-        {authUser?.role === "WHOLESALER_ADMIN" && (
+        {authUser?.role === "ADMIN" && (
           <Button onClick={openCreateModal} disabled={productsStatus === 'loading'}>
             Add Product
           </Button>
@@ -225,7 +225,7 @@ export default function Products() {
                     <TableHead>Author</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>Base Price</TableHead>
-                    {authUser?.role === "WHOLESALER_ADMIN" && (
+                    {authUser?.role === "ADMIN" && (
                       <TableHead className="text-right">Actions</TableHead>
                     )}
                   </TableRow>
@@ -261,7 +261,7 @@ export default function Products() {
                       </TableCell>
 
                       {/* Admin Interactive Action Column Buttons */}
-                      {authUser?.role === "WHOLESALER_ADMIN" && (
+                      {authUser?.role === "ADMIN" && (
                         <TableCell className="text-right whitespace-nowrap">
                           <div className="flex gap-2 justify-end">
                             <Button

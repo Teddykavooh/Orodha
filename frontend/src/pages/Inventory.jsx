@@ -116,7 +116,7 @@ export default function Inventory() {
           Inventory
         </h2>
 
-        {authUser?.role === "WHOLESALER_ADMIN" && (
+        {authUser?.role === "ADMIN" && (
           <Button onClick={() => {
             resetForm();
             setIsOpen(true);
@@ -267,7 +267,7 @@ export default function Inventory() {
                   <TableHead>Serial Number</TableHead>
                   <TableHead>Location / Hub</TableHead>
                   <TableHead>Status</TableHead>
-                  {authUser?.role === "WHOLESALER_ADMIN" && (
+                  {authUser?.role === "ADMIN" && (
                     <TableHead className="text-right">Actions</TableHead>
                   )}
                 </TableRow>
@@ -302,7 +302,7 @@ export default function Inventory() {
                     </TableCell>
 
                     {/* Admin Interactive Action Column Buttons */}
-                    {authUser?.role === "WHOLESALER_ADMIN" && (
+                    {authUser?.role === "ADMIN" && (
                       <TableCell className="text-right whitespace-nowrap">
                         <div className="flex gap-2 justify-end">
                           <Button
