@@ -25,6 +25,11 @@ export default function Register() {
   const isSuccess = typeof msg === "string" && msg.includes("success");
   const displayMsg = typeof msg === "string" ? msg : JSON.stringify(msg);
 
+  const [logoFile, setLogoFile] = useState(null);
+  const [logoUrl, setLogoUrl] = useState("");
+  // Track which Logo Input Method is Active ('file' or 'url')
+  const [logoMethod, setLogoMethod] = useState("file");
+
   // function tenantLoginUrl(tenantDomain, username) {
   //   const protocol = window.location.protocol;
   //   const port = window.location.port ? `:${window.location.port}` : "";
@@ -35,15 +40,32 @@ export default function Register() {
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
+
+     // Create a real FormData stream container right inside the handler
+    const formData = new FormData();
+    
+    // Append all your primary scalar text metadata values
+    formData.append("schema_name", schema);
+    formData.append("business_name", business);
+    formData.append("admin_username", adminUsername);
+    formData.append("admin_email", adminEmail);
+    formData.append("admin_password", adminPassword);
+
+    // Conditionally append ONLY the active user option to keep the data payload clean
+    if (logoMethod === "file" && logoFile) {
+      formData.append("logo_file", logoFile); // Sends raw device binary file data [3]
+    } else if (logoMethod === "url" && logoUrl) {
+      formData.append("logo_url", logoUrl);   // Sends a plain text web address string [3]
+    }
+
     try {
-      const res = await publicApi.post("/tenants/register/", {
-        schema_name: schema,
-        business_name: business,
-        logo: "",
-        admin_username: adminUsername,
-        admin_email: adminEmail,
-        admin_password: adminPassword,
+      const res = await publicApi.post("/tenants/register/", formData, {
+        headers: {
+          // Tell the browser to encode this as a multi-part boundary stream for files [3]
+          "Content-Type": "multipart/form-data",
+        },
       });
+
       // const tenantDomain = res.data?.tenant?.domain || domain;
       // window.location.assign(tenantLoginUrl(tenantDomain, adminUsername));
 
@@ -62,6 +84,9 @@ export default function Register() {
       setAdminUsername("");
       setAdminEmail("");
       setAdminPassword("");
+      setLogoMethod("file");
+      setLogoFile(null);
+      setLogoUrl("");
     } catch (err) {
       const errorData = err?.response?.data;
       const simpleMessage = 
@@ -79,9 +104,9 @@ export default function Register() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md shadow-md border border-gray-200">
         <CardHeader>
-          <CardTitle>Register Tenant</CardTitle>
+          <CardTitle className="text-2xl text-center">Register Tenant</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -92,6 +117,66 @@ export default function Register() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Business name</label>
               <Input value={business} onChange={(e) => setBusiness(e.target.value)} placeholder="Full business name" disabled={loading} />
+            </div>
+            {/* ADD: THE LOGO OPTION METHOD SWITCHER TABS */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Company Logo Method</label>
+              <div className="grid grid-cols-2 gap-1 p-1 bg-gray-100 rounded-lg border border-gray-200">
+                <button
+                  type="button" // CRITICAL: Prevents accidental form submissions on click
+                  onClick={() => setLogoMethod("file")}
+                  disabled={loading}
+                  className={`flex items-center justify-center gap-2 py-2 text-xs font-semibold rounded-md transition-all duration-200 ${
+                    logoMethod === "file" 
+                      ? "bg-white text-blue-600 shadow-sm border border-gray-200" 
+                      : "text-gray-500 hover:text-gray-900 hover:bg-gray-50/50"
+                  }`}
+                >
+                  <Image className="h-4 w-4" />
+                  <span>Upload File</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLogoMethod("url")}
+                  disabled={loading}
+                  className={`flex items-center justify-center gap-2 py-2 text-xs font-semibold rounded-md transition-all duration-200 ${
+                    logoMethod === "url" 
+                      ? "bg-white text-blue-600 shadow-sm border border-gray-200" 
+                      : "text-gray-500 hover:text-gray-900 hover:bg-gray-50/50"
+                  }`}
+                >
+                  <Link2 className="h-4 w-4" />
+                  <span>Paste URL Link</span>
+                </button>
+              </div>
+            </div>
+
+            {/* ADD: THE CONDITIONAL LOGO FIELD CONTAINER */}
+            <div className="p-3 bg-gray-50 border border-dashed border-gray-200 rounded-lg min-h-[76px] flex flex-col justify-center">
+              {logoMethod === "file" ? (
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">Choose a local image file</label>
+                  <input
+                    type="file"
+                    accept="image/*" // Optimises the native mobile overlay picker to focus strictly on photo galleries
+                    onChange={(e) => setLogoFile(e.target.files[0])} // 🔑 CRITICAL FIX: Grabs the single, raw file object instead of the FileList array
+                    disabled={loading}
+                    className="w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 file:cursor-pointer hover:file:bg-blue-100 disabled:opacity-50 transition-colors"
+                  />
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Paste web image address</label>
+                  <Input 
+                    type="url"
+                    value={logoUrl} 
+                    onChange={(e) => setLogoUrl(e.target.value)} 
+                    placeholder="https://example.com" 
+                    disabled={loading} 
+                    className="bg-white"
+                  />
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Admin username</label>
@@ -128,7 +213,11 @@ export default function Register() {
                 </button>
               </div>
             </div>
+
+            {/* Feedback Messages */}
             {msg && <p className={`text-sm p-2 rounded ${isSuccess ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>{displayMsg}</p>}
+            
+            {/* Submit Button */}
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Registering..." : "Register"}
             </Button>
