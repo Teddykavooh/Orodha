@@ -1,4 +1,5 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk} from "@reduxjs/toolkit";
+
 import { tenantApi as api } from "../../services/api";
 
 export const fetchInventory = createAsyncThunk(

@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/Dialog'
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "../components/ui/Table";
 
 /**
  * Products page: displays products from Redux store and allows WHOLESALER_ADMIN to create/delete.
@@ -215,37 +216,76 @@ export default function Products() {
             <p className="text-gray-500 text-center py-6">No products yet.</p>
           )}
           {productsStatus === 'succeeded' && products.length > 0 && (
-            <ul className="space-y-2">
-              {products.map((p) => (
-                <li key={p.id} className="flex justify-between items-center p-4 border border-gray-200 rounded hover:bg-gray-50 transition-colors">
-                  <div>
-                    <p className="text-sm text-gray-500">ISBN: {p.isbn}</p>
-                    <p className="font-semibold text-gray-900">{p.title}</p>
-                    <p className="text-sm text-gray-500">Author: {p.author}</p>
-                    <p className="text-sm text-gray-500">Category: {p.category}</p>
-                    <p className="text-sm font-medium text-green-700">KES {p.base_price}</p>
-                  </div>
-                  {authUser?.role === "WHOLESALER_ADMIN" && (
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => openEditModal(p)} // Corrected: Links cleanly to modal mapper
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDeleteProduct(p.id)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
+            <div className="w-full overflow-x-auto rounded-lg">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>ISBN</TableHead>
+                    <TableHead>Product Title</TableHead>
+                    <TableHead>Author</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Base Price</TableHead>
+                    {authUser?.role === "WHOLESALER_ADMIN" && (
+                      <TableHead className="text-right">Actions</TableHead>
+                    )}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {products.map((p) => (
+                    <TableRow key={p.id}>
+                      {/* ISBN Column Code */}
+                      <TableCell className="font-mono text-sm text-gray-600">
+                        {p.isbn || "-"}
+                      </TableCell>
+
+                      {/* Product Title Column */}
+                      <TableCell className="font-semibold text-gray-900">
+                        {p.title}
+                      </TableCell>
+
+                      {/* Author Column */}
+                      <TableCell className="text-sm text-gray-600">
+                        {p.author || "-"}
+                      </TableCell>
+
+                      {/* Category Badge Column */}
+                      <TableCell className="text-sm text-gray-500">
+                        <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-medium">
+                          {p.category}
+                        </span>
+                      </TableCell>
+
+                      {/* Base Price Column */}
+                      <TableCell className="text-sm font-semibold text-green-700 whitespace-nowrap">
+                        KES {Number(p.base_price).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </TableCell>
+
+                      {/* Admin Interactive Action Column Buttons */}
+                      {authUser?.role === "WHOLESALER_ADMIN" && (
+                        <TableCell className="text-right whitespace-nowrap">
+                          <div className="flex gap-2 justify-end">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => openEditModal(p)}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleDeleteProduct(p.id)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>

@@ -4,6 +4,7 @@ import { fetchSales } from '../features/sales/salesSlice'
 import { fetchUsers } from '../features/users/usersSlice'
 import { fetchProducts } from '../features/products/productsSlice'
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "../components/ui/Table";
 
 /**
  * Dashboard: displays KPI cards (total sales, active users, products) and recent sales.
@@ -104,21 +105,59 @@ export default function Dashboard() {
             <div className="text-gray-500 text-center py-8">No sales yet.</div>
           )}
           {salesStatus === 'succeeded' && recentSales.length > 0 && (
-            <ul className="space-y-2">
-              {recentSales.map((s) => (
-                <li key={s.id} className="p-3 border border-gray-200 rounded hover:bg-gray-50 transition-colors">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">{s.note || "(no note)"}</p>
-                      <p className="text-xs text-gray-500 mt-1">{formatDate(s.created_at)}</p>
-                    </div>
-                    {s.total && (
-                      <p className="text-sm font-semibold text-gray-900">{s.total}</p>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <div className="w-full overflow-x-auto rounded-lg">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Receipt ID</TableHead>
+                    <TableHead>Timestamp</TableHead>
+                    <TableHead>Product Item</TableHead>
+                    <TableHead>Salesperson Agent</TableHead>
+                    <TableHead className="text-right">Price</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {[...recentSales].map((s) => (
+                    <TableRow key={s.id}>
+                      {/* Receipt Identification Code Column */}
+                      <TableCell className="font-mono text-xs text-gray-500">
+                        #REC-{s.id}
+                      </TableCell>
+                      
+                      {/* Timestamp Column */}
+                      <TableCell className="text-sm text-gray-600">
+                        {formatDate(s.sold_at)}
+                      </TableCell>
+                      
+                      {/* Displaying Product Title Text alongside structural ID reference */}
+                      <TableCell className="text-sm">
+                        <div className="font-medium text-gray-900">
+                          {s.product_title || "Unknown Product"}
+                        </div>
+                        <div className="text-xs text-gray-400 font-mono">
+                          ID: #{s.book_item}
+                        </div>
+                      </TableCell>
+                      
+                      {/* Displaying readable Salesperson string reference */}
+                      <TableCell className="text-sm text-gray-700">
+                        <span className="font-medium text-gray-900">
+                          {s.salesperson_name || "System Agent"}
+                        </span>
+                        <span className="text-xs text-gray-400 font-mono block">
+                          Profile Key: #{s.salesperson}
+                        </span>
+                      </TableCell>
+                      
+                      {/* Settled Price and Currency Column */}
+                      <TableCell className="text-right font-semibold text-green-700 whitespace-nowrap">
+                        KES {Number(s.sale_price).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>

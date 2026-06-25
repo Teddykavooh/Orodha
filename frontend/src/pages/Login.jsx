@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from 'react-redux'
+import { Eye, EyeOff } from 'lucide-react';
+
 import { fetchMe, login } from '../features/auth/authSlice'
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
 import { Input } from '../components/ui/Input'
@@ -15,6 +17,8 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [organisation, setOrganisation] = useState(localStorage.getItem("organisation") || "")
+  const [adminPassword, setAdminPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   // const [msg, setMsg] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -63,6 +67,7 @@ export default function Login() {
       // }, 1500);
 
     } catch (err) {
+      console.log("Log in err: ", err);
       setError(err?.message || String(err));
     } finally {
       setLoading(false);
@@ -78,7 +83,7 @@ export default function Login() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Organization</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Organization Code</label>
               <Input
                 value={organisation}
                 onChange={(e) => setOrganisation(e.target.value)}
@@ -97,13 +102,30 @@ export default function Login() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password"
-                disabled={loading}
-              />
+              {/* Relative wrapper keeps the button tracked inside the input bounds */}
+              <div className="relative flex items-center">
+                <Input
+                  type={showPassword ? "text" : "password"} // Switches input mask rules instantly
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter password"
+                  disabled={loading}
+                  className="pr-10" // Extra padding-right stops text running underneath the icon button
+                />
+                <button
+                  type="button" // CRITICAL: Must be type="button" so it doesn't accidentally trigger form submit
+                  onClick={() => setShowPassword(!showPassword)}
+                  disabled={loading}
+                  className="absolute right-3 text-gray-400 hover:text-gray-600 focus:outline-none disabled:opacity-50 transition-colors"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
             {error && <p className="text-sm text-red-600 bg-red-50 p-2 rounded">{String(error)}</p>}
             <Button type="submit" className="w-full" disabled={loading}>

@@ -58,6 +58,8 @@ export default function Sales() {
    * Filtered Inventory Logic: Matches location parameters against auth rules
    */
   const availableInventory = inventory.filter((item) => {
+    // console.log("Inventory: ", inventory);
+    // console.log("Item: ", item);
     // 1. Rule: Item cannot be marked as already sold
     if (item.status === "SOLD") return false;
 
@@ -77,7 +79,7 @@ export default function Sales() {
   function openSaleModal(item) {
     setSelectedItem(item);
     // Autofill with product base price if available in state configuration models
-    setSalePrice(item.base_price || ""); 
+    setSalePrice(item.product_price || ""); 
     setIsOpen(true);
   }
 
@@ -112,7 +114,8 @@ export default function Sales() {
     try {
       await dispatch(createSale({
         bookItemId: selectedItem.id,
-        salePrice: salePrice
+        salePrice: salePrice,
+        bookItemSeller: authUser.id,
       })).unwrap();
       
       // Refresh local copy arrays to accurately clear out newly sold units
@@ -163,6 +166,7 @@ export default function Sales() {
                     <TableHead>Product Title</TableHead>
                     <TableHead>Serial Number</TableHead>
                     <TableHead>Assigned Hub</TableHead>
+                    <TableHead>Price</TableHead>
                     <TableHead className="text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -172,6 +176,7 @@ export default function Sales() {
                       <TableCell className="font-medium">{item.product_title}</TableCell>
                       <TableCell className="font-mono text-sm">{item.serial_number || "-"}</TableCell>
                       <TableCell className="text-sm text-gray-600">{item.hub_name || "Warehouse"}</TableCell>
+                      <TableCell className="text-sm text-gray-600">{item.product_price}</TableCell>
                       <TableCell className="text-right">
                         <Button size="sm" variant="default" onClick={() => openSaleModal(item)}>
                           Sell Item
@@ -239,7 +244,10 @@ export default function Sales() {
                     <TableHead>Transaction ID</TableHead>
                     <TableHead>Timestamp</TableHead>
                     <TableHead>Item (ID)</TableHead>
-                    <TableHead>Salesperson Profile Reference</TableHead>
+                    <TableHead>Serial Number</TableHead>
+                    <TableHead>Item Title</TableHead>
+                    <TableHead>Salesperson (ID)</TableHead>
+                    <TableHead>Salesperson Name</TableHead>
                     <TableHead className="text-right">Settled Amount</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -248,8 +256,11 @@ export default function Sales() {
                     <TableRow key={s.id}>
                       <TableCell className="font-mono text-xs text-gray-600">#TRN-{s.id}</TableCell>
                       <TableCell className="text-sm text-gray-600">{formatDate(s.sold_at)}</TableCell>
-                      <TableCell className="text-sm">Item ID: {s.book_item}</TableCell>
-                      <TableCell className="text-sm text-gray-600">User Profile Reference ID: {s.salesperson}</TableCell>
+                      <TableCell className="text-sm">{s.book_item}</TableCell>
+                      <TableCell className="text-sm">{s.book_serial}</TableCell>
+                      <TableCell className="text-sm">{s.product_title}</TableCell>
+                      <TableCell className="text-sm text-gray-600">{s.salesperson}</TableCell>
+                      <TableCell className="text-sm text-gray-600">{s.salesperson_name}</TableCell>
                       <TableCell className="text-right font-semibold text-green-700">KES {s.sale_price}</TableCell>
                     </TableRow>
                   ))}

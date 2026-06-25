@@ -32,6 +32,17 @@ class SaleLogViewSet(viewsets.ModelViewSet):
         if role == "SALESPERSON":
             return queryset.filter(salesperson=user)
         return queryset.none()
+    
+    def perform_create(self, serializer):
+        # 1. Save the sale log record natively
+        sale_log = serializer.save(salesperson=self.request.user)
+        
+        # 2. Automatically grab the linked physical book item
+        book_item = sale_log.book_item
+        
+        # 3. Mutate the database status to SOLD and save
+        book_item.status = "SOLD"
+        book_item.save()
 
     '''Temp endpoint debug'''
     def list(self, request, *args, **kwargs):

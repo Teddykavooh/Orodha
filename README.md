@@ -1,6 +1,6 @@
-# Orodha
+# myBook
 
-*Umaarufu Wa Kiratiba.*
+*Ufanisi wa Kiratiba, Utaratibu Sahihi.*
 
 ## Dev thingies
 

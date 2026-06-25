@@ -14,20 +14,13 @@ const port = window.location.port
 const host = window.location.hostname;
 
 export const login = createAsyncThunk('auth/login', async ({ organisation, username, password }, thunkAPI) => {
-  // New logic
-  // const tenantApi = axios.create({
-  //   baseURL: `${protocol}//${organisation}.${host}:8000/api`,
-  //   headers: {
-  //     "Content-Type": "application/json"
-  //   },
-  // });
 
   const res = await tenantApi.post("/auth/login/", {
     organisation,
     username,
     password,
   });
-
+  
   return res.data;
 });
 

@@ -8,13 +8,13 @@ import { Card, CardContent } from '../components/ui/Card'
  * Links to register or login depending on user state.
  */
 export default function Landing() {
-  // console.log("1", import.meta.env.VITE_PROXY_TARGET || 'https://orodha-backend.vercel.app');
-  // console.log("2", import.meta.env.VITE_PROXY_TARGET_CUSTOM || 'orodha-backend.vercel.app');
+  // console.log("1", import.meta.env.VITE_PROXY_TARGET || 'https://mybook-backend.vercel.app');
+  // console.log("2", import.meta.env.VITE_PROXY_TARGET_CUSTOM || 'mybook-backend.vercel.app');
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <div className="max-w-4xl mx-auto px-4 py-20 space-y-12">
         <div className="text-center space-y-4">
-          <h1 className="text-5xl font-bold text-gray-900">Orodha</h1>
+          <h1 className="text-5xl font-bold text-gray-900">myBook</h1>
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 tracking-wide">
             <i>Ufanisi wa Kiratiba,</i> <span className="text-blue-600 italic font-serif font-medium">Utaratibu Sahihi.</span>
           </h2>
@@ -46,7 +46,7 @@ export default function Landing() {
                 if (hour < 12) return "☀️ Good Morning";
                 if (hour < 17) return "🌤️ Good Afternoon";
                 return "🌙 Good Evening";
-              })()} & Welcome to Orodha
+              })()} & Welcome to myBook
             </div>
 
             {/* Cyclical or Elegant Quote Workspace */}

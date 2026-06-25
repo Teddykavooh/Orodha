@@ -195,5 +195,9 @@ TENANT_UNAWARE_PREFIXES = (
 # Custom user
 AUTH_USER_MODEL = 'accounts.UserProfile'
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend', # Ensures AbstractUser models can authenticate
+]
+
 # CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_BOOL', 'False').lower() == 'True'
 CORS_ALLOW_ALL_ORIGINS = True

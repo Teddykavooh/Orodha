@@ -23,6 +23,8 @@ import {
   DialogFooter,
 } from "../components/ui/Dialog";
 
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "../components/ui/Table";
+
 export default function Inventory() {
   const dispatch = useDispatch();
 
@@ -257,57 +259,73 @@ export default function Inventory() {
               <p>No inventory found.</p>
             )}
 
-          <div className="space-y-2">
+          <div className="w-full overflow-x-auto rounded-lg">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Product Title</TableHead>
+                  <TableHead>Serial Number</TableHead>
+                  <TableHead>Location / Hub</TableHead>
+                  <TableHead>Status</TableHead>
+                  {authUser?.role === "WHOLESALER_ADMIN" && (
+                    <TableHead className="text-right">Actions</TableHead>
+                  )}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {inventory.map((item) => (
+                  <TableRow key={item.id}>
+                    {/* Product Title Column */}
+                    <TableCell className="font-semibold text-gray-900">
+                      {item.product_title || "Unknown Product"}
+                    </TableCell>
 
-            {inventory.map((item) => (
-              <div
-                key={item.id}
-                className="border rounded p-4 flex justify-between items-center"
-              >
-                <div>
-                  <p className="font-semibold">
-                    {item.product_title}
-                  </p>
+                    {/* Serial Number Column */}
+                    <TableCell className="font-mono text-sm text-gray-600">
+                      {item.serial_number || "-"}
+                    </TableCell>
 
-                  <p className="text-sm text-gray-500">
-                    SN: {item.serial_number}
-                  </p>
+                    {/* Location Hub Column */}
+                    <TableCell className="text-sm text-gray-600">
+                      {item.hub_name || "Warehouse"}
+                    </TableCell>
 
-                  <p className="text-sm text-gray-500">
-                    Hub: {item.hub_name || "Warehouse"}
-                  </p>
+                    {/* Contextual Status Badge Column */}
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded text-xs font-semibold uppercase tracking-wide ${
+                        item.status === 'SOLD' ? 'bg-gray-100 text-gray-800' :
+                        item.status === 'AT_HUB' ? 'bg-blue-100 text-blue-800' :
+                        'bg-green-100 text-green-800'
+                      }`}>
+                        {item.status ? item.status.replace('_', ' ') : 'IN WAREHOUSE'}
+                      </span>
+                    </TableCell>
 
-                  <p className="text-sm">
-                    Status: {item.status}
-                  </p>
-                </div>
-
-                {authUser?.role ===
-                  "WHOLESALER_ADMIN" && (
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() =>
-                        handleEdit(item)
-                      }
-                    >
-                      Edit
-                    </Button>
-
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() =>
-                        handleDelete(item.id)
-                      }
-                    >
-                      Delete
-                    </Button>
-                  </div>
-                )}
-              </div>
-            ))}
+                    {/* Admin Interactive Action Column Buttons */}
+                    {authUser?.role === "WHOLESALER_ADMIN" && (
+                      <TableCell className="text-right whitespace-nowrap">
+                        <div className="flex gap-2 justify-end">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEdit(item)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleDelete(item.id)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
 
         </CardContent>

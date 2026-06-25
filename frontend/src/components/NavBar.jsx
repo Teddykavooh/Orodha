@@ -15,7 +15,7 @@ export default function NavBar() {
   const dispatch = useDispatch();
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
-  const businessName = localStorage.getItem("business_name") || "Orodha"
+  const businessName = localStorage.getItem("business_name") || "myBook"
 
   function redirectToLogin() {
     localStorage.removeItem("business_name")
@@ -35,7 +35,7 @@ export default function NavBar() {
         ) : (
           <>
             <Link to="/" className="font-bold text-xl text-blue-600 hover:text-blue-700 transition-colors">
-              Orodha
+              myBook
             </Link>
           </>
         )
