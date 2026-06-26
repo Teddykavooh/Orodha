@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Eye, EyeOff, Users as UsersIcon } from 'lucide-react';
 
 import { fetchUsers, createUser, deleteUser, updateUser } from '../features/users/usersSlice'
+import { fetchHubs } from '../features/hubs/hubsSlice'
+
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/ui/Table'
 import { Button } from '../components/ui/Button'
@@ -30,6 +32,7 @@ export default function Users() {
   const usersStatus = useSelector(state => state.users.status)
   const usersError = useSelector(state => state.users.error)
   const authUser = useSelector(state => state.auth.user)
+  const hubs = useSelector(state => state.hubs.items);
 
   // Form Field States
   const [username, setUsername] = useState("");
@@ -37,6 +40,7 @@ export default function Users() {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("MERCHANDISER");
   const [showPassword, setShowPassword] = useState(false);
+  const [hub, setHub] = useState("")
   
   // UI Flow Control States
   const [isOpen, setIsOpen] = useState(false);
@@ -46,6 +50,7 @@ export default function Users() {
   // Fetch users on component mount
   useEffect(() => {
     dispatch(fetchUsers())
+    dispatch(fetchHubs());
   }, [dispatch]);
 
   // Open modal configured for a clean "Create User" session
@@ -55,6 +60,7 @@ export default function Users() {
     setPassword("")
     setEmail("")
     setRole("MERCHANDISER")
+    setHub("")
     setIsOpen(true)
   }
 
@@ -65,6 +71,7 @@ export default function Users() {
     setPassword("") // Clear password field completely for safety
     setEmail(user.email || "")
     setRole(user.role || "MERCHANDISER")
+    setHub(user.hub || "")
     setIsOpen(true)
   }
 
@@ -76,6 +83,7 @@ export default function Users() {
     setPassword("")
     setEmail("")
     setRole("MERCHANDISER")
+    setHub("")
     setShowPassword(false)
   }
 
@@ -98,7 +106,7 @@ export default function Users() {
     setLoading(true);
 
     // Build modern standard payload body mapping fields out cleanly
-    const payload = { username, email, role };
+    const payload = { username, email, role, hub: hub || null };
     if (password) {
       payload.password = password; // Attach password mutation variables only if explicitly written
     }
@@ -222,6 +230,22 @@ export default function Users() {
               <SelectOption value="MERCHANDISER">MERCHANDISER</SelectOption>
             </Select>
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Assigned Hub / Warehouse Location</label>
+            <select 
+              value={hub} 
+              onChange={(e) => setHub(e.target.value)} 
+              disabled={loading}
+              className="w-full flex h-10 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+            >
+              <option value="">No Hub Assignment (Global/Unassigned)</option>
+              {hubs.map((h) => (
+                <option key={h.id} value={h.id}>
+                  {h.name}
+                </option>
+              ))}
+            </select>
+          </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={handleCloseModal} disabled={loading}>
               Cancel
@@ -248,6 +272,7 @@ export default function Users() {
                   <TableHead>Username</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Role</TableHead>
+                  <TableHead>Assigned Location</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -264,6 +289,11 @@ export default function Users() {
                         'bg-green-100 text-green-800'
                       }`}>
                         {u.role}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-sm font-medium text-gray-900">
+                        {u.hub_name || "Central Warehouse (Global)"}
                       </span>
                     </TableCell>
                     <TableCell className="text-right whitespace-nowrap">

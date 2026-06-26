@@ -13,6 +13,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
     listing users inside a tenant schema.
     """
 
+    hub_name = serializers.ReadOnlyField(source="hub.name")
+
     class Meta:
         model = UserProfile
         fields = [
@@ -23,8 +25,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "last_name",
             "role",
             "hub",
+            "hub_name",
         ]
-        read_only_fields = ["id"]
+        read_only_fields = ["id", "hub_name"]
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -38,7 +41,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
     """
 
     password = serializers.CharField(write_only=True, min_length=8)
-
+    hub_name = serializers.ReadOnlyField(source="hub.name")
     class Meta:
         model = UserProfile
         fields = [
@@ -48,10 +51,11 @@ class UserCreateSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "role",
-            "hub",
             "password",
+            "hub",
+            "hub_name",
         ]
-        read_only_fields = ["id"]
+        read_only_fields = ["id", "hub_name"]
 
     def create(self, validated_data):
         """
