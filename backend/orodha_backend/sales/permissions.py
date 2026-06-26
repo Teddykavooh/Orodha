@@ -29,7 +29,7 @@ class SaleLogPermission(permissions.BasePermission):
             return False
 
         if request.method == 'POST':
-            return _is_admin(request.user) or _is_admin(request.user) or _is_merchandiser(request.user)
+            return _is_admin(request.user) or _is_manager(request.user) or _is_merchandiser(request.user)
 
         if request.method in permissions.SAFE_METHODS:
             return True

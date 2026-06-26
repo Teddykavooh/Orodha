@@ -67,6 +67,7 @@ class BookItemViewSet(viewsets.ModelViewSet):
         print("AUTH:", request.auth)
         print("IS AUTHENTICATED:", request.user.is_authenticated)
         print("ROLE:", getattr(request.user, "role", None))
+        print("HUB:", request.user.hub_id)
         print("===================================")
         return super().list(request, *args, **kwargs)
 

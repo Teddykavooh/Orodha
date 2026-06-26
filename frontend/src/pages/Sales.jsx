@@ -58,22 +58,13 @@ export default function Sales() {
   /**
    * Filtered Inventory Logic: Matches location parameters against auth rules
    */
+  // console.log("Inventory: ", inventory);
   const availableInventory = inventory.filter((item) => {
-    // console.log("Inventory: ", inventory);
     // console.log("Item: ", item);
-    // 1. Rule: Item cannot be marked as already sold
+    // Rule: Item cannot be marked as already sold
     if (item.status === "SOLD") return false;
 
-    // 2. Rule: Wholesaler Admins bypass restriction checks to view total stock
-    if (authUser?.role === "ADMIN") return true;
-
-    // 3. Rule: Filter matching the specific physical hub matching user profile profile parameters
-    if (authUser?.hub_id) {
-      return Number(item.current_hub) === Number(authUser.hub_id);
-    }
-
-    // Default fallback case if an employee does not have an assigned location hub
-    return false;
+    return true;
   });
 
   // Prepares checkout state parameters for selected item 
