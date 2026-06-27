@@ -1,5 +1,6 @@
 asgiref==3.11.1
 astroid==4.0.4
+charset-normalizer==3.4.7
 colorama==0.4.6
 dill==0.4.1
 Django==6.0.6
@@ -15,6 +16,7 @@ pycodestyle==2.14.0
 pyflakes==3.4.0
 pylint==4.0.5
 python-dotenv==1.2.2
+reportlab==5.0.0
 sqlparse==0.5.5
 tomlkit==0.15.0
 tzdata==2026.2

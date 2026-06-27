@@ -10,7 +10,8 @@ import {
   BookOpen, 
   Package, 
   TrendingUp, 
-  LogOut 
+  LogOut, 
+  FileChartColumn
 } from "lucide-react"; // Imported crisp structural icons
 
 export default function Sidebar() {
@@ -114,6 +115,11 @@ export default function Sidebar() {
           <NavLink to="/sales" className={getLinkClass}>
             <TrendingUp className="h-4 w-4" />
             <span>Sales Desk</span>
+          </NavLink>
+
+          <NavLink to="/reports" className={getLinkClass}>
+            <FileChartColumn className="h-4 w-4" />
+            <span>Reports</span>
           </NavLink>
         </nav>
       </div>

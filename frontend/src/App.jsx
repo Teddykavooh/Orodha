@@ -12,6 +12,7 @@ import Products from "./pages/Products";
 import Sales from "./pages/Sales";
 import Hubs from "./pages/Hubs";
 import Inventory from "./pages/Inventory";
+import Reports from "./pages/Reports";
 import { fetchMe } from "./features/auth/authSlice";
 
 function ProtectedRoute({ children }) {
@@ -57,6 +58,7 @@ export default function App() {
         <Route path="/sales" element={<ProtectedRoute><Sales /></ProtectedRoute>} />
         <Route path="/hubs" element={<ProtectedRoute><Hubs /></ProtectedRoute>} />
         <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
+        <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
       </Routes>
     </AppLayout>
   );

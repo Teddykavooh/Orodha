@@ -13,7 +13,8 @@ import {
   TrendingUp, 
   LogOut,
   LogIn,
-  UserPlus
+  UserPlus,
+  FileChartColumn
 } from "lucide-react";
 
 /**
@@ -117,6 +118,10 @@ export default function NavBar() {
             <TrendingUp className="h-4 w-4" />
             <span>Sales</span>
           </NavLink>
+          <NavLink to="/reports" className={getNavLinkClass}>
+            <FileChartColumn className="h-4 w-4" />
+            <span>Reports</span>
+          </NavLink>
         </div>
       )}
 
@@ -184,6 +189,10 @@ export default function NavBar() {
               <NavLink to="/sales" className={getMobileNavLinkClass} onClick={() => setMobileOpen(false)}>
                 <TrendingUp className="h-4 w-4" />
                 <span>Sales</span>
+              </NavLink>
+              <NavLink to="/reports" className={getMobileNavLinkClass} onClick={() => setMobileOpen(false)}>
+                <FileChartColumn className="h-4 w-4" />
+                <span>Reports</span>
               </NavLink>
 
               <div className="pt-4 border-t border-gray-200 mt-3 px-2">

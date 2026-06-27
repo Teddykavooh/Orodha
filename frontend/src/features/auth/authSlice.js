@@ -3,8 +3,11 @@ import axios from 'axios';
 import { tenantApi } from '../../services/api'
 
 const savedToken = localStorage.getItem('token') || null
+const rawOrg = localStorage.getItem('organisation');
+const savedOrg = rawOrg && rawOrg !== "null" && rawOrg !== "undefined" ? rawOrg : "";
+
+// Hydrate Axios instances safely on app boot
 tenantApi.setToken(savedToken);
-const savedOrg = localStorage.getItem('organisation') || null
 tenantApi.setOrganisation(savedOrg);
 
 const protocol = window.location.protocol;
@@ -14,14 +17,21 @@ const port = window.location.port
 const host = window.location.hostname;
 
 export const login = createAsyncThunk('auth/login', async ({ organisation, username, password }, thunkAPI) => {
+  try {
+    localStorage.setItem('organisation', organisation.trim().toLowerCase());
 
-  const res = await tenantApi.post("/auth/login/", {
-    organisation,
-    username,
-    password,
-  });
-  
-  return res.data;
+    const res = await tenantApi.post("/auth/login/", {
+      organisation,
+      username,
+      password,
+    });
+    
+    return res.data;
+  } catch (error) {
+    // If the login fails, scrub the temporary organization token out of memory
+    localStorage.removeItem('organisation');
+    return thunkAPI.rejectWithValue(err.response?.data || { non_field_errors: [err.message] });
+  }
 });
 
 export const fetchMe = createAsyncThunk('auth/fetchMe', async (_, thunkAPI) => {
@@ -84,12 +94,13 @@ const authSlice = createSlice({
         const orgSchemaName = action.payload.tenant.schema_name
         state.organisation =  orgSchemaName
 
-        localStorage.setItem('token', action.payload.token)
-        tenantApi.setToken(action.payload.token)
-        // console.log("log in success set org: ", action.payload)
-        localStorage.setItem('organisation', orgSchemaName)
-        tenantApi.setOrganisation(action.payload.tenant.schema_name)
-        localStorage.setItem('business_name', action.payload.tenant.business_name)
+        // Persist session tokens securely across browser reloads
+        localStorage.setItem('token', action.payload.token);
+        localStorage.setItem('organisation', orgSchemaName);
+        localStorage.setItem('business_name', action.payload.tenant.business_name);
+        
+        tenantApi.setToken(action.payload.token);
+        tenantApi.setOrganisation(orgSchemaName);
       })
       .addCase(login.rejected, (state, action) => {
         state.status = 'failed'
