@@ -87,6 +87,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# Allow your frontend subdomain
+CORS_ALLOWED_ORIGINS = [
+    "https://mybook.co.ke",
+]
+
 ROOT_URLCONF = 'orodha_backend.urls'
 
 TEMPLATES = [
