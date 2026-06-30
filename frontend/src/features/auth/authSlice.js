@@ -30,7 +30,7 @@ export const login = createAsyncThunk('auth/login', async ({ organisation, usern
   } catch (error) {
     // If the login fails, scrub the temporary organization token out of memory
     localStorage.removeItem('organisation');
-    return thunkAPI.rejectWithValue(err.response?.data || { non_field_errors: [err.message] });
+    return thunkAPI.rejectWithValue(error.response?.data || { non_field_errors: [error.message] });
   }
 });
 
@@ -113,8 +113,9 @@ const authSlice = createSlice({
       })
       .addCase(login.rejected, (state, action) => {
         state.status = 'failed'
-        state.error = action.error.message
-        console.log("")
+        // state.error = action.error.message
+        state.error = action.payload.detail
+        // console.log("login failed: ", action)
       })
       .addCase(fetchMe.pending, (state) => {
         state.status = 'loading'
@@ -129,6 +130,7 @@ const authSlice = createSlice({
         state.token = null
         state.user = null
         state.error = action.payload || action.error.message
+        console.log("fetchMe failed: ", action)
       })
   },
 })
