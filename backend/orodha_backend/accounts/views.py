@@ -87,9 +87,15 @@ class LoginView(APIView):
             token, _ = Token.objects.get_or_create(
                 user=user
             )
+            logo = ""
+            if tenant.logo_file:
+                logo = tenant.logo_file.url
+            elif tenant.logo_url and tenant.logo_url.strip():
+                logo = tenant.logo_url.strip()
 
             # print("Logging in user domain", tenant.domains.first().domain)
-
+            # print("Logo", logo)
+            
             return Response(
                 {
                     "token": token.key,
@@ -97,6 +103,9 @@ class LoginView(APIView):
                         "schema_name": tenant.schema_name,
                         "business_name": tenant.business_name,
                         "tenant_domain": tenant.domains.first().domain,
+                        "logo": logo,
+                        # "logo_file": tenant.logo_file,
+                        # "logo_url": tenant.logo_url,
                     },
                     "user": UserProfileSerializer(user).data
                 }

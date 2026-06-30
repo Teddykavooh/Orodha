@@ -27,7 +27,8 @@ export default function NavBar() {
   const navigate = useNavigate();
   const businessName = localStorage.getItem("business_name") || "myBook";
   
-  const businessLogoUrl = useSelector(state => state.auth.user?.organisation_logo || null);
+  // const businessLogoUrl = useSelector(state => state.auth.user?.organisation_logo || null);
+  const businessLogoUrl = localStorage.getItem("logo") || "";
 
   function redirectToLogin() {
     localStorage.removeItem("business_name");

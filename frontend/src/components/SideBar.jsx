@@ -19,7 +19,11 @@ export default function Sidebar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const businessName = localStorage.getItem("business_name") || "myBook";
-  const businessLogoUrl = useSelector((state) => state.auth.logo) || "";
+  // const businessLogoUrl = useSelector((state) => state.auth.logo) || "";
+  const businessLogoUrl = localStorage.getItem("logo") || "";
+
+  // console.log("Logo: ", businessLogoUrl);
+  // console.log("Logo2: ", businessLogoUrl2);
 
   function handleLogout() {
     dispatch(logout());

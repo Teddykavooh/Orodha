@@ -12,3 +12,4 @@ PRODUCTION.env
 /orodha_backend/accounts/__pycache__
 /orodha_backend/accounts/migrations/__pycache__
 demo_tenant.py
+/tenant_logos

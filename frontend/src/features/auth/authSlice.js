@@ -64,6 +64,7 @@ const authSlice = createSlice({
     token: savedToken,
     organisation: savedOrg,
     user: null,
+    // logo:null,
     status: 'idle',
     error: null,
   },
@@ -72,9 +73,12 @@ const authSlice = createSlice({
       state.token = null;
       state.user = null;
       state.organisation = null;
+      // state.logo = null;
 
       localStorage.removeItem("token");
       localStorage.removeItem("organisation");
+      localStorage.removeItem("logo");
+      // localStorage.removeItem("logo_url");
 
       tenantApi.setToken(null);
       tenantApi.setOrganisation(null);
@@ -89,6 +93,9 @@ const authSlice = createSlice({
         state.status = 'succeeded'
         state.token = action.payload.token
         state.user = action.payload.user
+        // state.logo = action.payload.tenant.logo
+
+        // console.log("Payload: ", action.payload);
 
         // Extract organization schema name
         const orgSchemaName = action.payload.tenant.schema_name
@@ -97,7 +104,9 @@ const authSlice = createSlice({
         // Persist session tokens securely across browser reloads
         localStorage.setItem('token', action.payload.token);
         localStorage.setItem('organisation', orgSchemaName);
-        localStorage.setItem('business_name', action.payload.tenant.business_name);
+        localStorage.setItem('business_name', action.payload.tenant.business_name);   
+        localStorage.setItem('logo', action.payload.tenant.logo);
+        // localStorage.setItem('logo_url', action.payload.tenant.logo_url);
         
         tenantApi.setToken(action.payload.token);
         tenantApi.setOrganisation(orgSchemaName);

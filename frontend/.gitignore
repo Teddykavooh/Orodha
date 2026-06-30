@@ -1,5 +1,7 @@
 node_modules/
 .env
+PRODUCTION.env
+LOCAL.env
 /dist
 
 IMPLEMENTATION_GUIDE.md
