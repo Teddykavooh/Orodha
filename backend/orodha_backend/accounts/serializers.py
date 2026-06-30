@@ -1,4 +1,6 @@
 from django.contrib.auth import authenticate
+from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
 from .models import UserProfile
@@ -29,6 +31,24 @@ class UserProfileSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "hub_name"]
 
+    # Clean up updates to an existing profile
+    def validate_username(self, value):
+        normalized_value = value.strip().lower()
+        if ' ' in normalized_value:
+            raise serializers.ValidationError("Usernames cannot contain spaces.")
+        
+        # Check uniqueness manually against other users in this tenant schema
+        user_id = self.instance.id if self.instance else None
+        if UserProfile.objects.filter(username__iexact=normalized_value).exclude(id=user_id).exists():
+            raise serializers.ValidationError("A user with that username already exists.")
+            
+        return normalized_value
+
+    def validate_email(self, value):
+        if not value:
+            return value
+        return value.strip().lower()
+
 
 class UserCreateSerializer(serializers.ModelSerializer):
     """
@@ -56,6 +76,32 @@ class UserCreateSerializer(serializers.ModelSerializer):
             "hub_name",
         ]
         read_only_fields = ["id", "hub_name"]
+
+    def validate_username(self, value):
+        # 1. Lowercase and strip outer padding
+        normalized_value = value.strip().lower()
+
+        # 2. Block spacing bugs
+        if ' ' in normalized_value:
+            raise serializers.ValidationError("Usernames cannot contain spaces.")
+
+        # 3. Ensure native character alignment
+        username_validator = UnicodeUsernameValidator()
+        try:
+            username_validator(normalized_value)
+        except ValidationError as e:
+            raise serializers.ValidationError(e.messages)
+
+        # 4. Scope verification within the current active tenant schema database
+        if UserProfile.objects.filter(username__iexact=normalized_value).exists():
+            raise serializers.ValidationError("A user with that username already exists.")
+
+        return normalized_value
+
+    def validate_email(self, value):
+        if not value:
+            return value
+        return value.strip().lower()
 
     def create(self, validated_data):
         """
@@ -101,4 +147,8 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 {"organisation": "Organisation field cannot be blank."}
             )
+        
+        # 2. Clean the incoming credential strings before passing to authenticate()
+        if "username" in attrs:
+            attrs["username"] = attrs["username"].strip().lower()
         return attrs

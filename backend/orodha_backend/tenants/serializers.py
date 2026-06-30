@@ -3,6 +3,8 @@ import os
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django_tenants.utils import tenant_context
+from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
 from .models import Client, Domain
@@ -45,6 +47,31 @@ class TenantRegistrationSerializer(serializers.Serializer):
         if Client.objects.filter(schema_name=value).exists():
             raise serializers.ValidationError("A tenant with this schema already exists.")
         return value
+    
+    def validate_admin_username(self, value):
+        # 1. Strip accidental surrounding whitespace and lowercase it
+        normalized_value = value.strip().lower()
+
+        # 2. Prevent internal spaces (e.g., "john doe")
+        if ' ' in normalized_value:
+            raise serializers.ValidationError("Usernames cannot contain spaces.")
+
+        # 3. Leverage Django's native validator to block illegal special characters
+        username_validator = UnicodeUsernameValidator()
+        try:
+            username_validator(normalized_value)
+        except ValidationError as e:
+            raise serializers.ValidationError(e.messages)
+
+        return normalized_value
+
+    def validate_admin_email(self, value):
+        # Return early if email is blank/empty
+        if not value:
+            return value
+            
+        # Strip accidental whitespace and lowercase the entire email
+        return value.strip().lower()
 
     # def validate_name(self, value):
     #     """Ensure the tenant display/internal name is unique."""
