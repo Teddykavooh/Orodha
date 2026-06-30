@@ -32,6 +32,7 @@ export default function NavBar() {
 
   function redirectToLogin() {
     localStorage.removeItem("business_name");
+    localStorage.removeItem("logo")
     navigate("/login");
   }
 
