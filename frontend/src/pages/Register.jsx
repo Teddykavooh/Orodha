@@ -28,7 +28,7 @@ export default function Register() {
   const [logoFile, setLogoFile] = useState(null);
   const [logoUrl, setLogoUrl] = useState("");
   // Track which Logo Input Method is Active ('file' or 'url')
-  const [logoMethod, setLogoMethod] = useState("file");
+  const [logoMethod, setLogoMethod] = useState("url");
 
   // function tenantLoginUrl(tenantDomain, username) {
   //   const protocol = window.location.protocol;
@@ -124,16 +124,22 @@ export default function Register() {
               <div className="grid grid-cols-2 gap-1 p-1 bg-gray-100 rounded-lg border border-gray-200">
                 <button
                   type="button" // CRITICAL: Prevents accidental form submissions on click
-                  onClick={() => setLogoMethod("file")}
-                  disabled={loading}
-                  className={`flex items-center justify-center gap-2 py-2 text-xs font-semibold rounded-md transition-all duration-200 ${
-                    logoMethod === "file" 
-                      ? "bg-white text-blue-600 shadow-sm border border-gray-200" 
-                      : "text-gray-500 hover:text-gray-900 hover:bg-gray-50/50"
-                  }`}
+                  // onClick set to url by default
+                  onClick={() => setLogoMethod("url")}
+                  disabled={loading || true}
+                  // className={`flex items-center justify-center gap-2 py-2 text-xs font-semibold rounded-md transition-all duration-200 ${
+                  //   logoMethod === "file" 
+                  //     ? "bg-white text-blue-600 shadow-sm border border-gray-200" 
+                  //     : "text-gray-500 hover:text-gray-900 hover:bg-gray-50/50"
+                  // }`}
+                  className={`flex items-center justify-center gap-2 py-2 text-xs font-semibold rounded-md transition-all duration-200 cursor-not-allowed opacity-50 bg-gray-100/80 text-gray-400 border border-gray-200`}
                 >
                   <Image className="h-4 w-4" />
                   <span>Upload File</span>
+                  {/* Clean, subtle visual status badge */}
+                  <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-1 py-0.5 rounded uppercase tracking-wide">
+                    Soon
+                  </span>
                 </button>
                 <button
                   type="button"
