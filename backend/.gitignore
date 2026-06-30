@@ -2,6 +2,7 @@
 .env
 LOCAL.env
 PRODUCTION.env
+LOCAL_PRODUCTION_DB.env
 /orodha_backend/__pycache__
 /orodha_backend/tenants/__pycache__
 /orodha_backend/tenants/migrations/__pycache__
