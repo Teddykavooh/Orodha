@@ -15,9 +15,15 @@ export const fetchUsers = createAsyncThunk('users/fetchUsers', async (_, thunkAP
  * Creates a new user with username, password, role, and optional hub.
  */
 export const createUser = createAsyncThunk('users/createUser', async (userData, thunkAPI) => {
-  const res = await tenantApi.post('/users/', userData)
-  return res.data
-})
+  try {
+    const res = await tenantApi.post('/users/', userData)
+    return res.data
+  } catch (error) {
+    if (!error.response)
+      throw error;  
+    return thunkAPI.rejectWithValue(error.response.data);
+  }
+});
 
 // Update User Thunk (Added)
 export const updateUser = createAsyncThunk('users/updateUser', async ({ id, data }, thunkAPI) => {
@@ -62,7 +68,7 @@ const usersSlice = createSlice({
         state.items.push(action.payload)
       })
       .addCase(createUser.rejected, (state, action) => {
-        state.error = action.error.message
+        state.error = action.payload?.username?.[0] || action.error.message;
       })
       // Update User Lifecycle (Added)
       .addCase(updateUser.fulfilled, (state, action) => {
