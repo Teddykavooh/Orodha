@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { tenantApi } from "../services/api";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
@@ -9,6 +9,7 @@ import { fetchHubs } from "../features/hubs/hubsSlice";
 import { fetchUsers } from "../features/users/usersSlice";
 
 export default function Reports() {
+  const dispatch = useDispatch()
   const authUser = useSelector((state) => state.auth.user);
   const hubs = useSelector((state) => state.hubs.items);
   const users = useSelector((state) => state.users.items);
@@ -49,6 +50,48 @@ export default function Reports() {
     dispatch(fetchHubs());
   }, [dispatch]);
 
+  /**
+   * Securely streams and downloads report files through your authenticated tenantApi instance
+   */
+  async function handleDownloadFile(targetFormat) {
+    try {
+      // Catch filters
+      const params = new URLSearchParams();
+      params.append("export_format", targetFormat);
+      if (selectedHub) params.append("hub_id", selectedHub);
+      if (selectedAgent) params.append("merchandiser_id", selectedAgent);
+      if (startDate) params.append("start_date", startDate);
+      if (endDate) params.append("end_date", endDate);
+
+      // Hit tenantApi with an explicit blob binary array responseType
+      const response = await tenantApi.get(`/sales/reporting/?${params.toString()}`, {
+        responseType: "blob", 
+      });
+
+      // Convert the binary stream payload into a local downloadable browser URL pointer
+      const blobType = targetFormat === "pdf" ? "application/pdf" : "text/csv";
+      const fileBlob = new Blob([response.data], { type: blobType });
+      const browserDownloadUrl = window.URL.createObjectURL(fileBlob);
+
+      // Create an invisible anchor tag to execute the local filesystem save command
+      const dummyLinkElement = document.createElement("a");
+      dummyLinkElement.href = browserDownloadUrl;
+      dummyLinkElement.setAttribute(
+        "download", 
+        `orodha_sales_report_${new Date().toISOString().split('T')[0]}.${targetFormat}`
+      );
+
+      // Append, fire click, and garbage collect immediately to keep memory clear
+      document.body.appendChild(dummyLinkElement);
+      dummyLinkElement.click();
+      dummyLinkElement.parentNode.removeChild(dummyLinkElement);
+      window.URL.revokeObjectURL(browserDownloadUrl);
+    } catch (error) {
+      console.error("Download execution error context:", error);
+      alert("Failed to compile and stream file export ledger archives.");
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Page Header Layout Block */}
@@ -75,7 +118,8 @@ export default function Reports() {
             <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Merchandiser Agent</label>
             <select value={selectedAgent} onChange={(e) => setSelectedAgent(e.target.value)} className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
               <option value="">All Staff</option>
-              {users.filter(u => u.role === "MERCHANDISER").map(u => (
+              {/* {users.filter(u => u.role === "MERCHANDISER").map(u => ( */}
+              {users.map(u => (
                 <option key={u.id} value={u.id}>{u.username}</option>
               ))}
             </select>
@@ -133,26 +177,17 @@ export default function Reports() {
           <Button 
             variant="outline" 
             size="sm"
-            onClick={() => {
-              const base = import.meta.env.VITE_PROXY_TARGET || 'https://vercel.app';
-              const token = localStorage.getItem("token");
-              // Package your current state active dropdown options directly into an out-of-band link
-              window.open(`${base}/api/sales/reporting/?format=csv&hub_id=${selectedHub}&merchandiser_id=${selectedAgent}&start_date=${startDate}&end_date=${endDate}&token=${token}`, "_blank");
-            }}
+            onClick={() => handleDownloadFile("csv")}
             className="bg-white border-gray-300 text-gray-700 hover:bg-green-50 hover:text-green-700 hover:border-green-200"
           >
-            <span>📥 Download Excel / CSV</span>
+            <span>📥 Download CSV</span>
           </Button>
 
           {/* PDF Download Trigger Button */}
           <Button 
             variant="outline" 
             size="sm"
-            onClick={() => {
-              const base = import.meta.env.VITE_PROXY_TARGET || 'https://vercel.app';
-              const token = localStorage.getItem("token");
-              window.open(`${base}/api/sales/reporting/?format=pdf&hub_id=${selectedHub}&merchandiser_id=${selectedAgent}&start_date=${startDate}&end_date=${endDate}&token=${token}`, "_blank");
-            }}
+            onClick={() => handleDownloadFile("pdf")}
             className="bg-white border-gray-300 text-gray-700 hover:bg-red-50 hover:text-red-700 hover:border-red-200"
           >
             <span>📄 Download Print PDF</span>
