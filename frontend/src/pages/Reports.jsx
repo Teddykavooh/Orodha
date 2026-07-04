@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card"
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
 import { FileText, TrendingUp, BarChart3, FileChartColumn } from "lucide-react";
+import { fetchHubs } from "../features/hubs/hubsSlice";
+import { fetchUsers } from "../features/users/usersSlice";
 
 export default function Reports() {
   const authUser = useSelector((state) => state.auth.user);
@@ -43,7 +45,9 @@ export default function Reports() {
   // Auto-run report initialization on mount
   useEffect(() => {
     fetchGeneratedReport();
-  }, []);
+    dispatch(fetchUsers())
+    dispatch(fetchHubs());
+  }, [dispatch]);
 
   return (
     <div className="space-y-6">
