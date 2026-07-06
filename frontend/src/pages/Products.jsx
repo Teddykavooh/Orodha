@@ -223,7 +223,7 @@ export default function Products() {
             <p className="text-gray-500 text-center py-6">No products yet.</p>
           )}
           {productsStatus === 'succeeded' && products.length > 0 && (
-            <div className="w-full overflow-x-auto rounded-lg">
+            <div className="w-full overflow-x-auto rounded-lg max-h-[450px] overflow-y-auto">
               <Table>
                 <TableHeader>
                   <TableRow>

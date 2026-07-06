@@ -157,7 +157,7 @@ export default function Sales() {
             <p className="p-6 text-gray-500 text-center text-sm">No items currently available for sale at your assigned hub location.</p>
           )}
           {inventoryStatus === "succeeded" && availableInventory.length > 0 && (
-            <div className="w-full overflow-x-auto">
+            <div className="w-full overflow-x-auto max-h-[300px] overflow-y-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -235,7 +235,7 @@ export default function Sales() {
             <p className="text-gray-500 text-center py-6 text-sm">No transaction records logged yet.</p>
           )}
           {salesStatus === 'succeeded' && sales.length > 0 && (
-            <div className="w-full overflow-x-auto">
+            <div className="w-full overflow-x-auto max-h-[300px] overflow-y-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
