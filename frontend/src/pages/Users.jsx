@@ -265,61 +265,63 @@ export default function Users() {
             <p className="p-6 text-gray-500 text-center">No users found.</p>
           )}
           {usersStatus === 'succeeded' && users.length > 0 && (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Username</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Assigned Location</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.map((u) => (
-                  <TableRow key={u.id}>
-                    <TableCell className="text-sm">{u.id}</TableCell>
-                    <TableCell className="font-medium">{u.username}</TableCell>
-                    <TableCell className="text-sm text-gray-600">{u.email || "-"}</TableCell>
-                    <TableCell>
-                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                        u.role === 'ADMIN' ? 'bg-red-100 text-red-800' :
-                        u.role === 'MANAGER' ? 'bg-blue-100 text-blue-800' :
-                        'bg-green-100 text-green-800'
-                      }`}>
-                        {u.role}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-sm font-medium text-gray-900">
-                        {u.hub_name || "Central Warehouse (Global)"}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right whitespace-nowrap">
-                      {authUser?.role === "ADMIN" && (
-                        <div className="flex gap-2 justify-end">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => openEditModal(u)} // Connected missing Edit routing hook
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => handleDeleteUser(u.id)}
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      )}
-                    </TableCell>
+            <div className="w-full overflow-x-auto rounded-lg">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>ID</TableHead>
+                    <TableHead>Username</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Assigned Location</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {users.map((u) => (
+                    <TableRow key={u.id}>
+                      <TableCell className="text-sm">{u.id}</TableCell>
+                      <TableCell className="font-medium">{u.username}</TableCell>
+                      <TableCell className="text-sm text-gray-600">{u.email || "-"}</TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                          u.role === 'ADMIN' ? 'bg-red-100 text-red-800' :
+                          u.role === 'MANAGER' ? 'bg-blue-100 text-blue-800' :
+                          'bg-green-100 text-green-800'
+                        }`}>
+                          {u.role}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm font-medium text-gray-900">
+                          {u.hub_name || "Central Warehouse (Global)"}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right whitespace-nowrap">
+                        {authUser?.role === "ADMIN" && (
+                          <div className="flex gap-2 justify-end">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openEditModal(u)} // Connected missing Edit routing hook
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleDeleteUser(u.id)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>
