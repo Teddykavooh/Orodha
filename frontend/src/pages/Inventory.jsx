@@ -264,7 +264,7 @@ export default function Inventory() {
               <p>No inventory found.</p>
             )}
 
-          <div className="w-full overflow-x-auto rounded-lg max-h-[450px] overflow-y-auto">
+          <div className="w-full overflow-x-auto rounded-lg max-h-[70vh] overflow-y-auto">
             <Table>
               <TableHeader>
                 <TableRow>
