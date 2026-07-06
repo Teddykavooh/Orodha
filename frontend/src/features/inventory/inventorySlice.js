@@ -52,7 +52,8 @@ const inventorySlice = createSlice({
         state.status = "succeeded";
         state.items = Array.isArray(action.payload)
           ? action.payload
-          : action.payload.results || [];
+          // : action.payload.results || [];
+          : action.payload || [];
       })
 
       .addCase(fetchInventory.rejected, (state, action) => {

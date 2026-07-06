@@ -64,7 +64,8 @@ const salesSlice = createSlice({
       })
       .addCase(fetchSales.fulfilled, (state, action) => {
         state.status = 'succeeded'
-        state.items = action.payload.results || []
+        // state.items = action.payload.results || []
+        state.items = action.payload || []
         state.error = null
       })
       .addCase(fetchSales.rejected, (state, action) => {

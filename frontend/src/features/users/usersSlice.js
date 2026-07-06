@@ -56,7 +56,8 @@ const usersSlice = createSlice({
       })
       .addCase(fetchUsers.fulfilled, (state, action) => {
         state.status = 'succeeded'
-        state.items = action.payload.results || []
+        // state.items = action.payload.results || []
+        state.items = action.payload || []
         state.error = null
       })
       .addCase(fetchUsers.rejected, (state, action) => {

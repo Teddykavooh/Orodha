@@ -50,7 +50,8 @@ const hubsSlice = createSlice({
 
       .addCase(fetchHubs.fulfilled, (state, action) => {
         state.status = 'succeeded'
-        state.items = action.payload.results || []
+        // state.items = action.payload.results || []
+        state.items = action.payload || []
       })
 
       .addCase(fetchHubs.rejected, (state, action) => {
