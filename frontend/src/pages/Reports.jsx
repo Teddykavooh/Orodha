@@ -78,7 +78,7 @@ export default function Reports() {
       dummyLinkElement.href = browserDownloadUrl;
       dummyLinkElement.setAttribute(
         "download", 
-        `orodha_sales_report_${new Date().toISOString().split('T')[0]}.${targetFormat}`
+        `myBook_sales_report_${new Date().toISOString().split('T')[0]}.${targetFormat}`
       );
 
       // Append, fire click, and garbage collect immediately to keep memory clear
