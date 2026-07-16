@@ -7,7 +7,7 @@ import {
   TableRow, 
   TableHead, 
   TableCell 
-} from './Table' // Adjust this path based on your folder structure
+} from './Table'
 
 export default function HubTable({ hubs = [], onEdit, onDelete }) {
   return (

@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react'
 
-export default function HubForm({
-  initialData,
-  onSubmit,
-  onCancel
-}) {
+export default function HubForm({ initialData, onSubmit, onCancel }) {
   const [name, setName] = useState('')
   const [address, setAddress] = useState('')
 
