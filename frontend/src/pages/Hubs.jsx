@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { fetchHubs, createHub, updateHub, deleteHub } from '../features/hubs/hubsSlice'
 import HubForm from '../components/ui/HubForm'
 import HubTable from '../components/ui/HubTable'
-import { Layers } from 'lucide-react'
+import { Building2 } from 'lucide-react'
 
 export default function Hubs() {
 
@@ -13,8 +13,7 @@ export default function Hubs() {
     state => state.hubs.items
   )
 
-  const [editingHub, setEditingHub] =
-    useState(null)
+  const [editingHub, setEditingHub] = useState(null)
 
   useEffect(() => {
     dispatch(fetchHubs())
@@ -57,7 +56,7 @@ export default function Hubs() {
           Hubs
         </h1>
         {/* Large, custom-branded blue dashboard icon */}
-        <Layers className="h-8 w-8 text-blue-600 transition-transform duration-200 hover:scale-110" />
+        <Building2 className="h-8 w-8 text-blue-600 transition-transform duration-200 hover:scale-110" />
       </div>
 
       <div className="border p-4 rounded">

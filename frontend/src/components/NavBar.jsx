@@ -6,7 +6,7 @@ import { Button } from './ui/Button';
 
 import { 
   LayoutDashboard, 
-  Layers, 
+  Building2, 
   Users as UsersIcon, 
   BookOpen, 
   Package, 
@@ -101,7 +101,7 @@ export default function NavBar() {
             <span>Dashboard</span>
           </NavLink>
           <NavLink to="/hubs" className={getNavLinkClass}>
-            <Layers className="h-4 w-4" />
+            <Building2 className="h-4 w-4" />
             <span>Hubs</span>
           </NavLink>
           <NavLink to="/users" className={getNavLinkClass}>
@@ -173,7 +173,7 @@ export default function NavBar() {
                 <span>Dashboard</span>
               </NavLink>
               <NavLink to="/hubs" className={getMobileNavLinkClass} onClick={() => setMobileOpen(false)}>
-                <Layers className="h-4 w-4" />
+                <Building2 className="h-4 w-4" />
                 <span>Hubs</span>
               </NavLink>
               <NavLink to="/users" className={getMobileNavLinkClass} onClick={() => setMobileOpen(false)}>
