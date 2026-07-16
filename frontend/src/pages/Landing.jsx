@@ -65,7 +65,7 @@ export default function Landing() {
           <Card>
             <CardContent className="pt-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Multi-tenant</h3>
-              <p className="text-sm text-gray-600">Manage multiple wholesalers and warehouses.</p>
+              <p className="text-sm text-gray-600">Manage inventory, users, and sales across multiple operational hubs.</p>
             </CardContent>
           </Card>
           <Card>
