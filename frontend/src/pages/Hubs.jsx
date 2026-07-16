@@ -49,6 +49,21 @@ export default function Hubs() {
     ).unwrap()
   }
 
+  function handleOpenCreateModal() {
+    setEditingHub(null) // Ensure old form cache is cleared out
+    setHidden(false)    // Lift visibility overlay
+  }
+
+  function handleActionEdit(hub) {
+    setEditingHub(hub)
+    setHidden(false)    // Opens modal when edit is clicked
+  }
+
+  function handleActionClose() {
+    setEditingHub(null)
+    setHidden(true)     // Closes modal frame safely
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -61,7 +76,7 @@ export default function Hubs() {
         </div>
         {/* Button Trigger to open the Dialog Modal */}
         <button 
-          onClick={() => setHidden(false)} 
+          onClick={handleOpenCreateModal}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition"
         >
           {editingHub ? 'Modify Hub' : 'Add New Hub'}
@@ -86,9 +101,7 @@ export default function Hubs() {
                 ? handleUpdate
                 : handleCreate
             }
-            onCancel={() =>
-              setEditingHub(null)
-            }
+            onCancel={handleActionClose}
           />
 
         </div>
@@ -96,7 +109,7 @@ export default function Hubs() {
 
       <HubTable
         hubs={hubs}
-        onEdit={setEditingHub}
+        onEdit={handleActionEdit}
         onDelete={handleDelete}
       />
 
