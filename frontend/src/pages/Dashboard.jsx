@@ -1,11 +1,16 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchSales } from '../features/sales/salesSlice'
 import { fetchUsers } from '../features/users/usersSlice'
 import { fetchProducts } from '../features/products/productsSlice'
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "../components/ui/Table";
-import { LayoutDashboard, TrendingUp, Users, BookOpen } from "lucide-react"; // Imported crisp structural icons
+import { Select, SelectOption } from "../components/ui/Select"
+import { LayoutDashboard, TrendingUp, Users, BookOpen, BarChart3, Building2, Calendar } from "lucide-react"; // Imported crisp structural icons
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell 
+} from 'recharts'
+import { subDays, startOfDay, parseISO, isAfter } from 'date-fns'
 
 /**
  * Dashboard: displays KPI cards (total sales, active users, products) and recent sales.
@@ -25,6 +30,10 @@ import { LayoutDashboard, TrendingUp, Users, BookOpen } from "lucide-react"; // 
  */
 export default function Dashboard() {
   const dispatch = useDispatch()
+
+  // Local UI Filter State
+  const [timeRange, setTimeRange] = useState('all') // Options: 'today', 'all', '7days', '30days'
+
   const sales = useSelector(state => state.sales.items)
   const salesStatus = useSelector(state => state.sales.status)
   const users = useSelector(state => state.users.items)
@@ -41,6 +50,93 @@ export default function Dashboard() {
     dispatch(fetchUsers())
     dispatch(fetchProducts())
   }, [dispatch])
+
+  // Memoized Filtering & Aggregation Pipeline
+  const analyticsData = useMemo(() => {
+    // Return early with empty structures if data hasn't loaded yet
+    if (!sales || !sales.length) {
+      return { filteredSalesCount: 0, merchandisers: [], hubs: [], products: [] }
+    }
+
+    // A. Apply Dropdown Time Filters
+    let filteredSales = [...sales]
+    if (timeRange !== 'all') {
+      let cutoffDate;
+
+      switch (timeRange) {
+        case "today":
+          cutoffDate = startOfDay(new Date());
+          break;
+
+        case "7days":
+          cutoffDate = startOfDay(subDays(new Date(), 7));
+          break;
+
+        case "30days":
+          cutoffDate = startOfDay(subDays(new Date(), 30));
+          break;
+
+        default:
+          cutoffDate = null;
+      }
+
+      if (cutoffDate) {
+      
+        filteredSales = sales.filter(sale => {
+          if (!sale.sold_at) return false
+          try {
+            const saleDate = parseISO(sale.sold_at)
+            return isAfter(saleDate, cutoffDate)
+          } catch (e) {
+            return false
+          }
+        })
+      }
+    }
+
+    // B. Instantiate Hash Tables for Aggregations
+    const agentMap = {}
+    const hubMap = {}
+    const productMap = {}
+
+    // C. Process Calculations Loop
+    filteredSales.forEach(sale => {
+      const price = Number(sale.sale_price) || 0
+      
+      // Grouping by Merchandiser Name
+      const agentName = sale.salesperson_name || `Agent #${sale.salesperson}`
+      if (!agentMap[agentName]) {
+        agentMap[agentName] = { name: agentName, revenue: 0, count: 0 }
+      }
+      agentMap[agentName].revenue += price
+      agentMap[agentName].count += 1
+
+      // Grouping by Operating Hub
+      const matchedUser = users.find(u => u.id === sale.salesperson)
+      const hubName = matchedUser?.hub_name || sale.hub_name || "Direct / Independent"
+      if (!hubMap[hubName]) {
+        hubMap[hubName] = { name: hubName, revenue: 0, count: 0 }
+      }
+      hubMap[hubName].revenue += price
+      hubMap[hubName].count += 1
+
+      // Grouping by Product Title Velocity
+      const itemTitle = sale.product_title || "Unknown Item"
+      if (!productMap[itemTitle]) {
+        productMap[itemTitle] = { title: itemTitle, revenue: 0, count: 0 }
+      }
+      productMap[itemTitle].revenue += price
+      productMap[itemTitle].count += 1
+    })
+
+    // D. Convert to Arrays, Sort Descending, and Extract Top 5 Performance Arrays
+    return {
+      filteredSalesCount: filteredSales.length,
+      merchandisers: Object.values(agentMap).sort((a, b) => b.revenue - a.revenue).slice(0, 5),
+      hubs: Object.values(hubMap).sort((a, b) => b.revenue - a.revenue).slice(0, 5),
+      products: Object.values(productMap).sort((a, b) => b.count - a.count).slice(0, 5)
+    }
+  }, [sales, users, timeRange])
 
   /**
    * Format date for display (ISO string to readable format).
@@ -61,6 +157,39 @@ export default function Dashboard() {
         </h1>
         {/* Large, custom-branded blue dashboard icon */}
         <LayoutDashboard className="h-8 w-8 text-blue-600 transition-transform duration-200 hover:scale-110" />
+      </div>
+
+      {/* Dynamic Dropdown Filter Panel */}
+      <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-1.5 shadow-sm">
+        <Calendar className="h-4 w-4 text-gray-500" />
+
+        <span className="text-xs font-medium text-gray-600">
+          Filter Window:
+        </span>
+
+        <Select
+          value={timeRange}
+          onChange={(e) => setTimeRange(e.target.value)}
+          className="w-[160px] h-8 text-xs border-0 bg-transparent shadow-none focus:ring-0"
+        >
+
+          <SelectOption value="today">
+            Today
+          </SelectOption>
+
+          <SelectOption value="7days">
+            Last 7 Days
+          </SelectOption>
+
+          <SelectOption value="30days">
+            Last 30 Days
+          </SelectOption>
+
+          <SelectOption value="all">
+            All Time Ledger
+          </SelectOption>
+
+        </Select>
       </div>
       
       {/* KPI Cards */}
@@ -129,6 +258,181 @@ export default function Dashboard() {
             </p>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Analytics Visual Charts Track Panel Container */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Graph Card A: Highest Performing Merchandisers */}
+        <Card className="shadow-sm border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between pb-4">
+            <div>
+              <CardTitle className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-blue-500" />Top Performance Merchandisers
+              </CardTitle>
+              <p className="text-sm text-gray-500 mt-1">
+                Highest revenue producers by KES sales generation
+              </p>
+            </div>
+          </CardHeader>
+
+          <CardContent>
+            {salesStatus === "loading" ? (
+              <div className="flex justify-center items-center h-64 text-gray-500">
+                Computing ledger trends...
+              </div>
+            ) : analyticsData.merchandisers.length === 0 ? (
+              <div className="flex justify-center items-center h-64 text-gray-500">
+                No data for selected range.
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={350}>
+                <BarChart
+                  data={analyticsData.merchandisers}
+                  margin={{ top: 10, right: 10, left: 10, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+
+                  <XAxis
+                    dataKey="name"
+                    stroke="#6B7280"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+
+                  <YAxis
+                    stroke="#6B7280"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(value) => `KES ${(value / 1000).toFixed(0)}k`}
+                  />
+
+                  <Tooltip
+                    formatter={(value) => [
+                      `KES ${Number(value).toLocaleString()}`,
+                      "Total Revenue",
+                    ]}
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      borderRadius: "8px",
+                      border: "1px solid #E5E7EB",
+                    }}
+                  />
+
+                  <Bar
+                    dataKey="revenue"
+                    radius={[6, 6, 0, 0]}
+                    barSize={40}
+                  >
+                    {analyticsData.merchandisers.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={index === 0 ? "#3B82F6" : "#93C5FD"}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Graph Card B: Regional Hub Aggregations */}
+        <Card className="shadow-sm border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between pb-4">
+            <div>
+              <CardTitle className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                <Building2 className="h-5 w-5 text-emerald-600" />
+                Regional Hub Performance
+              </CardTitle>
+
+              <p className="text-sm text-gray-500 mt-1">
+                Revenue generated by operational hubs
+              </p>
+            </div>
+          </CardHeader>
+
+          <CardContent>
+            {salesStatus === "loading" ? (
+              <div className="flex items-center justify-center h-64 text-gray-500">
+                Computing regional performance...
+              </div>
+            ) : analyticsData.hubs.length === 0 ? (
+              <div className="flex items-center justify-center h-64 text-gray-500">
+                No hub data available.
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={350}>
+                <BarChart
+                  data={analyticsData.hubs}
+                  margin={{
+                    top: 10,
+                    right: 10,
+                    left: 10,
+                    bottom: 5,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+
+                  <XAxis
+                    dataKey="name"
+                    stroke="#6B7280"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+
+                  <YAxis
+                    stroke="#6B7280"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(value) => `KES ${(value / 1000).toFixed(0)}k`}
+                  />
+
+                  <Tooltip
+                    formatter={(value) => [
+                      `KES ${Number(value).toLocaleString()}`,
+                      "Hub Revenue",
+                    ]}
+                    labelFormatter={(label) => `Hub: ${label}`}
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #E5E7EB",
+                      borderRadius: "8px",
+                    }}
+                  />
+
+                  <Bar
+                    dataKey="revenue"
+                    radius={[6, 6, 0, 0]}
+                    barSize={40}
+                  >
+                    {analyticsData.hubs.map((hub, index) => (
+                      <Cell
+                        key={hub.name}
+                        fill={
+                          index === 0
+                            ? "#059669"
+                            : index === 1
+                            ? "#10B981"
+                            : "#6EE7B7"
+                        }
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Grid Row Splitter Section: Recent Ledger Rows vs Velocity Movers */}
+
+        {/* Recent Transaction Tables */}
+
+        {/* Catalog Items Velocity Ranking */}
       </div>
 
       {/* Recent Sales */}
