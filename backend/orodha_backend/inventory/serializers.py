@@ -62,7 +62,7 @@ class BookItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BookItem
-        fields = ["id", "product", "product_title", "isbn", "serial_number", "current_hub", "hub_name", "product_price", "status", "created_at"]
+        fields = ["id", "product", "product_title", "isbn", "serial_number", "current_hub", "hub_name", "product_price", "quantity", "created_at"]
         read_only_fields = ["id", "created_at"]
 
 

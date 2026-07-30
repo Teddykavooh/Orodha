@@ -57,6 +57,10 @@ class BookItem(models.Model):
         related_name="copies"
     )
 
+    quantity = models.PositiveBigIntegerField(
+        default=1
+    )
+
     serial_number = models.CharField(
         max_length=100,
         # unique=True
@@ -68,7 +72,8 @@ class BookItem(models.Model):
         Hub,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL
+        on_delete=models.SET_NULL,
+        related_name="inventory"
     )
 
     status = models.CharField(
@@ -101,6 +106,8 @@ class InventoryMovement(models.Model):
         BookItem,
         on_delete=models.CASCADE
     )
+
+    quantity = models.PositiveIntegerField(default=1)
 
     from_hub = models.ForeignKey(
         Hub,

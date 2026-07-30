@@ -43,7 +43,8 @@ export default function Inventory() {
   const [product, setProduct] = useState("");
   const [serialNumber, setSerialNumber] = useState("");
   const [currentHub, setCurrentHub] = useState("");
-  const [status, setStatus] = useState("IN_WAREHOUSE");
+  // const [status, setStatus] = useState("IN_WAREHOUSE");
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     dispatch(fetchInventory());
@@ -56,7 +57,8 @@ export default function Inventory() {
     setProduct("");
     setSerialNumber("");
     setCurrentHub("");
-    setStatus("IN_WAREHOUSE");
+    // setStatus("IN_WAREHOUSE");
+    setQuantity(1);
   }
 
   function handleEdit(item) {
@@ -64,7 +66,8 @@ export default function Inventory() {
     setProduct(item.product);
     setSerialNumber(item.serial_number);
     setCurrentHub(item.current_hub || "");
-    setStatus(item.status);
+    // setStatus(item.status);
+    setQuantity(item.quantity || 1);
     setIsOpen(true);
   }
 
@@ -75,7 +78,8 @@ export default function Inventory() {
       product,
       serial_number: serialNumber,
       current_hub: currentHub || null,
-      status,
+      // status,
+      quantity: Number(quantity)
     };
 
     try {
@@ -108,6 +112,17 @@ export default function Inventory() {
       alert("Delete failed");
     }
   }
+
+  // Tie product ISBN to items
+  const handleProductSelectionChange = (productId) => {
+    setProduct(productId);
+    const matchedProduct = products.find(p => String(p.id) === String(productId));
+    if (matchedProduct?.isbn) {
+      setSerialNumber(matchedProduct.isbn); // Auto fills serial_number with ISBN strings
+    } else {
+      setSerialNumber("");
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -155,8 +170,9 @@ export default function Inventory() {
               className="w-full border rounded p-2"
               value={product}
               onChange={(e) =>
-                setProduct(e.target.value)
+                handleProductSelectionChange(e.target.value)
               }
+              requireed
             >
               <option value="">
                 Select Product
@@ -199,18 +215,18 @@ export default function Inventory() {
                 Warehouse
               </option>
 
-              {hubs.map((hub) => (
+              {/* {hubs.map((hub) => (
                 <option
                   key={hub.id}
                   value={hub.id}
                 >
                   {hub.name}
                 </option>
-              ))}
+              ))} */}
             </select>
           </div>
 
-          <div>
+          {/* <div>
             <label>Status</label>
 
             <select
@@ -232,6 +248,20 @@ export default function Inventory() {
                 Sold
               </option>
             </select>
+          </div> */}
+
+          {/* THE COMPACT COUNTER MODEL COMPONENT INPUT */}
+          <div>
+            <label>Copy Count</label>
+            <Input
+              type="number"
+              min="1"
+              max="100000"
+              className="w-full border rounded p-2 text-sm font-semibold"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              required
+            />
           </div>
 
           <DialogFooter>
@@ -271,7 +301,8 @@ export default function Inventory() {
                   <TableHead>Product Title</TableHead>
                   <TableHead>Serial Number</TableHead>
                   <TableHead>Location / Hub</TableHead>
-                  <TableHead>Status</TableHead>
+                  {/* <TableHead>Status</TableHead> */}
+                  <TableHead className="font-semibold text-gray-700">In-Stock Copies</TableHead>
                   {authUser?.role === "ADMIN" && (
                     <TableHead className="text-right">Actions</TableHead>
                   )}
@@ -296,7 +327,7 @@ export default function Inventory() {
                     </TableCell>
 
                     {/* Contextual Status Badge Column */}
-                    <TableCell>
+                    {/* <TableCell>
                       <span className={`px-2 py-1 rounded text-xs font-semibold uppercase tracking-wide ${
                         item.status === 'SOLD' ? 'bg-gray-100 text-gray-800' :
                         item.status === 'AT_HUB' ? 'bg-blue-100 text-blue-800' :
@@ -304,6 +335,12 @@ export default function Inventory() {
                       }`}>
                         {item.status ? item.status.replace('_', ' ') : 'IN WAREHOUSE'}
                       </span>
+                    </TableCell> */}
+
+                    <TableCell>
+                      <div className="inline-flex items-center justify-center bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1 rounded-lg border border-emerald-100 shadow-sm min-w-[60px]">
+                        {Number(item.quantity).toLocaleString()} available
+                      </div>
                     </TableCell>
 
                     {/* Admin Interactive Action Column Buttons */}
