@@ -3,6 +3,7 @@ from django.db import connection, transaction
 
 from rest_framework import permissions, viewsets, status
 from rest_framework.response import Response
+from rest_framework.decorators import action
 
 from .models import BookItem, Hub, InventoryMovement, Product
 from .permissions import AdminOrReadOnly, CanDeleteInventory
@@ -115,7 +116,82 @@ class BookItemViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(book_item)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    
+    @action(detail=False, methods=['POST'], url_path='allocate')
+    @transaction.atomic
+    def allocate_stock(sel,request):
+        """
+        POST /api/book-item/allocate/
+        Moves a batch of books from a source location (or warehouse) to a destination hub.
+        """
+        product_id = request.data.get('product')
+        from_hub_id = request.data.get('from_hub') or None # None implies Main Warehouse
+        to_hub_id = request.data.get('to_hub') or None
+        transfer_qty = int(request.data.get('quantity', 1))
+        user = request.user
+
+        # Prevent moving stock to the exact same place
+        if from_hub_id == to_hub_id:
+            return Response(
+                {"error": "Source and Destination locations cannot be identical."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # LOCK & ISOLATE THE SOURCE STOCK BUNDLE
+        try:
+            source_stock = BookItem.objects.select_for_update().get(
+                product_id=product_id,
+                current_hub_id=from_hub_id
+            )
+        except BookItem.DoesNotExist:
+            return Response(
+                {"error": "No available stock found for this product at the specified source location."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Volume verification
+        if source_stock.quantity < transfer_qty:
+            return Response(
+                {"error": f"Insufficient stock for allocation. Only {source_stock.quantity} copies remain at the source."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Deduct from source pool
+        source_stock.quantity -= transfer_qty
+        if source_stock.quantity == 0:
+            source_stock.delete()
+        else:
+            source_stock.save()
+
+        # UPSERT Destination pool
+        # Using .filter().first() to avoid MultipleObjectsReturned if legacy duplicate rows exist
+        dest_stock = BookItem.objects.filter(product_id=product_id, current_hub_id=to_hub_id).first()
+        if not dest_stock:
+            dest_stock = BookItem.objects.create(
+                product_id=product_id,
+                current_hub_id=to_hub_id,
+                serial_number=source_stock.serial_number,  # Match ISBN string fallback
+                quantity=transfer_qty
+            )
+        else:
+            # Increment existing receiving hub stock safely
+            dest_stock.quantity += transfer_qty
+            dest_stock.save()
+
+        # LOG THE PERMANENT AUDIT MOVEMENT LEDGER ENTRY
+        InventoryMovement.objects.create(
+            book_item=dest_stock,
+            quantity=transfer_qty,
+            action="TRANSFER",
+            from_hub_id=from_hub_id,
+            to_hub_id=to_hub_id,
+            performed_by=getattr(user, "userprofile", None)
+        )
+
+        return Response(
+            {"message": f"Successfully allocated {transfer_qty} copies to the destination location."},
+            status=status.HTTP_200_OK
+        )
+
     '''Temp endpoint debug'''
     def list(self, request, *args, **kwargs):
         print("========== BOOKITEM ENDPOINT ==========")

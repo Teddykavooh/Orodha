@@ -6,6 +6,7 @@ import {
   createInventoryItem,
   updateInventoryItem,
   deleteInventoryItem,
+  allocateInventory
 } from "../features/inventory/inventorySlice";
 
 import { fetchProducts } from "../features/products/productsSlice";
@@ -15,36 +16,34 @@ import { Card, CardContent } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "../components/ui/Dialog";
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../components/ui/Dialog";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "../components/ui/Table";
-import { Package2Icon, PackageIcon } from "lucide-react";
+import { Package2Icon, PackageIcon, ArrowLeftRight } from "lucide-react";
 
 export default function Inventory() {
   const dispatch = useDispatch();
 
   const inventory = useSelector((state) => state.inventory.items);
   const inventoryStatus = useSelector((state) => state.inventory.status);
-
   const products = useSelector((state) => state.products.items);
   const hubs = useSelector((state) => state.hubs.items);
-
   const authUser = useSelector((state) => state.auth.user);
 
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [isAllocateOpen, setIsAllocateOpen] = useState(false);
 
   const [product, setProduct] = useState("");
   const [serialNumber, setSerialNumber] = useState("");
   const [currentHub, setCurrentHub] = useState("");
   // const [status, setStatus] = useState("IN_WAREHOUSE");
   const [quantity, setQuantity] = useState(1);
+
+  const [allocProduct, setAllocProduct] = useState("");
+  const [fromHub, setFromHub] = useState(""); // Empty String maps as Main Warehouse
+  const [toHub, setToHub] = useState("");
+  const [allocQuantity, setAllocQuantity] = useState(1);
+
 
   useEffect(() => {
     dispatch(fetchInventory());
@@ -59,6 +58,13 @@ export default function Inventory() {
     setCurrentHub("");
     // setStatus("IN_WAREHOUSE");
     setQuantity(1);
+  }
+
+  function resetAllocateForm() {
+    setAllocProduct("");
+    setFromHub("");
+    setToHub("");
+    setAllocQuantity(1);
   }
 
   function handleEdit(item) {
@@ -103,6 +109,32 @@ export default function Inventory() {
     }
   }
 
+  // Submits Cross-Hub Allocation Movements
+  async function handleAllocateSubmit(e) {
+    e.preventDefault();
+
+    if (fromHub === toHub) {
+      alert("Source and destination locations cannot be identical!");
+      return;
+    }
+
+    const payload = {
+      product: allocProduct,
+      from_hub: fromHub || null,
+      to_hub: toHub || null,
+      quantity: Number(allocQuantity)
+    };
+
+    try {
+      await dispatch(allocateInventory(payload)).unwrap();
+      resetAllocateForm();
+      setIsAllocateOpen(false);
+      alert("Inventory successfully allocated across nodes!");
+    } catch (err) {
+      alert(err?.message || "Allocation Transfer failed");
+    }
+  }
+
   async function handleDelete(id) {
     if (!window.confirm("Delete inventory item?")) return;
 
@@ -137,12 +169,26 @@ export default function Inventory() {
         </div>
 
         {authUser?.role === "ADMIN" && (
-          <Button onClick={() => {
-            resetForm();
-            setIsOpen(true);
-          }}>
-            Add Inventory
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => {
+              resetForm();
+              setIsOpen(true);
+            }}>
+              Add Inventory
+            </Button>
+
+            <Button 
+              variant="outline"
+              className="flex items-center gap-2 border-blue-200 text-blue-700 hover:bg-blue-50"
+              onClick={() => {
+                resetAllocateForm();
+                setIsAllocateOpen(true);
+              }}
+            >
+              <ArrowLeftRight className="h-4 w-4" />
+              Allocate Stock
+            </Button>
+          </div>
         )}
       </div>
 
@@ -277,6 +323,87 @@ export default function Inventory() {
               {editingId
                 ? "Update"
                 : "Create"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </Dialog>
+
+      <Dialog isOpen={isAllocateOpen} onClose={() => setIsAllocateOpen(false)}>
+        <DialogHeader>
+          <DialogTitle>Allocate Inventory to Hubs</DialogTitle>
+        </DialogHeader>
+
+        <form onSubmit={handleAllocateSubmit} className="space-y-4">
+          <div>
+            <label className="text-xs font-semibold text-gray-700 block mb-1">Select Book / Catalog Item</label>
+            <select
+              className="w-full border rounded p-2 text-sm bg-white"
+              value={allocProduct}
+              onChange={(e) => setAllocProduct(e.target.value)}
+              required
+            >
+              <option value="">-- Choose Item --</option>
+              {products.map((p) => (
+                <option key={p.id} value={p.id}>{p.title} {p.isbn ? `(ISBN: ${p.isbn})` : ''}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold text-gray-700 block mb-1">Source Location (From)</label>
+            <select
+              className="w-full border rounded p-2 text-sm bg-white"
+              value={fromHub}
+              onChange={(e) => setFromHub(e.target.value)}
+            >
+              <option value="">Main Warehouse</option>
+              {hubs.map((h) => (
+                <option key={h.id} value={h.id}>{h.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label>Destination Hub (To)</label>
+            <select 
+              className="w-full border rounded p-2 text-sm bg-white"
+              value={toHub}
+              onChange={(e) => setToHub(e.target.value)}
+              required
+            >
+              <option value="">-- Select Destination Hub --</option>
+              {hubs.map((h) => (
+                <option key={h.id} value={h.id}>{h.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label>Transfer Volume Count</label>
+            <Input
+              type="number"
+              min="1"
+              max="100000"
+              className="w-full border rounded p-2 text-sm font-semibold"
+              value={allocQuantity}
+              onChange={(e) => setAllocQuantity(e.target.value)}
+              required
+            />
+          </div>
+
+          <DialogFooter className="flex gap-2 justify-end pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsAllocateOpen(false)}
+              >Cancel
+            </Button>
+
+            <Button
+              type="submit"
+              className="bg-blue-600 text-white hover:bg-blue-700 font-semibold"
+            >
+                Execute Allocation
             </Button>
           </DialogFooter>
         </form>

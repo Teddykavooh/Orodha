@@ -34,6 +34,20 @@ export const deleteInventoryItem = createAsyncThunk(
   }
 );
 
+export const allocateInventory = createAsyncThunk(
+  "inventory/allocateInventory",
+  async (allocationData) => {
+    // Points exactly to custom @action url path
+    const res = await api.post("/book-items/allocate/", allocationData);
+
+    // Pass server message
+    return {
+      message: res.data.message,
+      transferDetails: allocationData
+    };
+  }
+)
+
 const inventorySlice = createSlice({
   name: "inventory",
   initialState: {
@@ -62,7 +76,14 @@ const inventorySlice = createSlice({
       })
 
       .addCase(createInventoryItem.fulfilled, (state, action) => {
-        state.items.unshift(action.payload);
+        const existingIdx = state.items.findIndex(
+          (item) => item.id === action.payload.id
+        );
+        if (existingIdx >= 0) {
+          state.items[existingIdx] = action.payload;
+        } else {
+          state.items.unshift(action.payload);
+        }
       })
 
       .addCase(updateInventoryItem.fulfilled, (state, action) => {
@@ -79,6 +100,59 @@ const inventorySlice = createSlice({
         state.items = state.items.filter(
           (item) => item.id !== action.payload
         );
+      })
+
+      .addCase(allocateInventory.fulfilled, (state, action) => {
+        const { product, from_hub, to_hub, quantity } = action.payload.transferDetails;
+        const transferQty = Number(quantity);
+
+        // --- Deduct stock from the source location ---
+        state.items = state.items.map(item => {
+          const isTargetProduct = String(item.product) === String(product);
+          const isSourceLocation = from_hub === null 
+            ? !item.current_hub 
+            : String(item.current_hub) === String(from_hub);
+
+          if (isTargetProduct && isSourceLocation) {
+            return {
+              ...item,
+              quantity: Math.max(0, Number(item.quantity) - transferQty)
+            };
+          }
+          return item;
+        })
+        // Mirror the backend auto-delete: drop rows that hit 0 copies
+        .filter(item => Number(item.quantity) > 0);
+
+        // --- Increment stock at destination location ---
+        const destIdx = state.items.findIndex(item => {
+          const isTargetProduct = String(item.product) === String(product);
+          const isDestLocation = to_hub === null 
+            ? !item.current_hub 
+            : String(item.current_hub) === String(to_hub);
+          return isTargetProduct && isDestLocation;
+        });
+
+        if (destIdx >= 0) {
+          // Destination row already exists -> append quantity
+          state.items[destIdx].quantity = Number(state.items[destIdx].quantity) + transferQty;
+        } else {
+          // Destination row is completely new -> borrow details from another instance of the book to keep table info valid
+          const siblingInfo = state.items.find(item => String(item.product) === String(product));
+          
+          const newBatchRow = {
+            id: `temp-${Date.now()}`, // Temporary local unique key assignment
+            product: Number(product),
+            product_title: siblingInfo?.product_title || "Allocated Item",
+            isbn: siblingInfo?.isbn || siblingInfo?.serial_number || "-",
+            serial_number: siblingInfo?.serial_number || "-",
+            current_hub: to_hub ? Number(to_hub) : null,
+            hub_name: to_hub ? "Allocated Destination Hub" : "IN_WAREHOUSE",
+            quantity: transferQty,
+            created_at: new Date().toISOString()
+          };
+          state.items.unshift(newBatchRow);
+        }
       });
   },
 });
