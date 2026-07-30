@@ -1,7 +1,7 @@
 import csv
 
 from django.utils import timezone
-from django.db import connection
+from django.db import connection, transaction
 from django.db.models import Sum, Count
 from django.http import HttpResponse, JsonResponse
 
@@ -10,6 +10,7 @@ from rest_framework.response import Response # Added back for JSON rendering sup
 from rest_framework import permissions, viewsets, status
 
 from .models import SaleLog
+from ..inventory.models import BookItem, InventoryMovement
 from .permissions import SaleLogPermission
 from .serializers import SaleLogSerializer
 from ..accounts.models import UserProfile
@@ -26,7 +27,7 @@ class SaleLogViewSet(viewsets.ModelViewSet):
     CRUD endpoint for tenant sale records.
 
     select_related() keeps list/detail responses efficient by fetching the
-    linked BookItem and salesperson in the same query.
+    linked BookItem(Product) and salesperson in the same query.
     """
 
     queryset = SaleLog.objects.select_related("book_item", "salesperson").order_by("id")
@@ -46,16 +47,88 @@ class SaleLogViewSet(viewsets.ModelViewSet):
             return queryset.filter(salesperson=user)
         return queryset.none()
     
-    def perform_create(self, serializer):
-        # 1. Save the sale log record natively
-        sale_log = serializer.save(salesperson=self.request.user)
+    # def perform_create(self, serializer):
+    #     # 1. Save the sale log record natively
+    #     sale_log = serializer.save(salesperson=self.request.user)
         
-        # 2. Automatically grab the linked physical book item
-        book_item = sale_log.book_item
+    #     # 2. Automatically grab the linked physical book item
+    #     book_item = sale_log.book_item
         
-        # 3. Mutate the database status to SOLD and save
-        book_item.status = "SOLD"
-        book_item.save()
+    #     # 3. Mutate the database status to SOLD and save
+    #     book_item.status = "SOLD"
+    #     book_item.save()
+
+    # New Logic
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        """
+        Overridden create method to enforce atomic quantity checks,
+        deduct stock levels, and securely process sales ledger entries.
+        """
+        # Parse payload variables from the incoming serializer context
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        # Extract target item details and desired volume counts
+        book_item_id = request.data.get('book_item')
+        sale_qty = int(request.data.get('quantity', 1)) # Defaults to 1 for typical single retail sales
+        user = request.user
+
+        try:
+            # Row Lock Isolation: Select row for update to prevent simultaneous race conditions
+            book_item = BookItem.objects.select_for_update().get(id=book_item_id)
+        except BookItem.DoesNotExist:
+            return Response(
+                {"error": "The selected inventory item pool does not exist or has run out of stock."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Hard Business Rule Check: Verify physical item volume availability
+        if book_item.quantity < sale_qty:
+            return Response(
+                {"error": f"Insufficient inventory availability. Only {book_item.quantity} items remain in this batch."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Strict Geographical Guard Check
+        if getattr(user, "role", None) != "ADMIN":
+            user_hub_id = getattr(user, "hub_id", None)
+            if book_item.current_hub_id != user_hub_id:
+                return Response({"error": "You cannot sell stock assigned to another hub location."}, status=status.HTTP_403_FORBIDDEN)
+
+        # 3. Verify stock availability
+        if book_item.quantity < sale_qty:
+            return Response({"error": f"Insufficient stock. Only {book_item.quantity} available."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Safe Counter Reduction Strategy
+        book_item.quantity -= sale_qty
+        
+        if book_item.quantity == 0:
+            # Wipe item reference container out of existence to block negative overflow sales loops
+            book_item.delete()
+        else:
+            book_item.save()
+
+        # Commit Sale Entry Record securely into your database ledger
+        sale_log = serializer.save(
+            salesperson=user,
+            product=book_item.product,
+            hub=book_item.current_hub
+        )
+
+        # Audit Trail Logging: Append an operations tracking point into your Movement ledger
+        InventoryMovement.objects.create(
+            product=book_item.product,
+            book_item=book_item,
+            quantity=sale_qty,
+            action="SALE",
+            from_hub=book_item.current_hub if book_item.id else None, # Safely evaluates context metrics
+            to_hub=None,
+            performed_by=getattr(user, "userprofile", None)
+        )
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     '''Temp endpoint debug'''
     def list(self, request, *args, **kwargs):

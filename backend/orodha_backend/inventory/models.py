@@ -102,6 +102,12 @@ class InventoryMovement(models.Model):
         ("SALE", "Sale"),
     )
 
+    product = models.ForeignKey(
+        Product,
+        null=True,
+        on_delete=models.CASCADE
+    ) 
+
     book_item = models.ForeignKey(
         BookItem,
         on_delete=models.CASCADE
