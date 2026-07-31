@@ -6,7 +6,7 @@ import { fetchProducts } from '../features/products/productsSlice'
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "../components/ui/Table";
 import { Select, SelectOption } from "../components/ui/Select"
-import { LayoutDashboard, TrendingUp, Users, BookOpen, BarChart3, Building2, Calendar } from "lucide-react"; // Imported crisp structural icons
+import { LayoutDashboard, TrendingUp, Users, BookOpen, BarChart3, Building2, Calendar, HandCoins } from "lucide-react"; // Imported crisp structural icons
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell 
 } from 'recharts'
@@ -98,6 +98,7 @@ export default function Dashboard() {
     const agentMap = {}
     const hubMap = {}
     const productMap = {}
+    let accumulatedRevenue = 0;
 
     // C. Process Calculations Loop
     filteredSales.forEach(sale => {
@@ -105,6 +106,8 @@ export default function Dashboard() {
       
       // Get sale quantity
       const saleQty = Number(sale.quantity) || 1
+
+      accumulatedRevenue += price;
 
       // Grouping by Merchandiser Name
       const agentName = sale.salesperson_name || `Agent #${sale.salesperson}`
@@ -138,6 +141,7 @@ export default function Dashboard() {
     
     return {
       filteredSalesCount: totalPhysicalUnitsSold,
+      totalRevenue: accumulatedRevenue,
       merchandisers: Object.values(agentMap).sort((a, b) => b.revenue - a.revenue).slice(0, 5),
       hubs: Object.values(hubMap).sort((a, b) => b.revenue - a.revenue).slice(0, 5),
       products: Object.values(productMap).sort((a, b) => b.count - a.count).slice(0, 5)
@@ -199,7 +203,7 @@ export default function Dashboard() {
       </div>
       
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         {/* Total Sales Card */}
         <Card className="overflow-hidden hover:shadow-md transition-shadow">
           <CardContent className="pt-6">
@@ -261,6 +265,32 @@ export default function Dashboard() {
             </div>
             <p className="text-xs text-gray-400 mt-4">
               products mapped in catalog
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Total Financial Revenue Metric Card */}
+        <Card className="overflow-hidden hover:shadow-md transition-shadow">
+          <CardContent className="pt-6">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-sm font-medium text-gray-500 mb-1">
+                  {timeRange === 'all' ? 'Total Gross Revenue' : 'Filtered Revenue Return'}
+                </p>
+                <p className="text-3xl font-bold text-gray-900 tracking-tight">
+                  {salesStatus === 'loading' ? '-' : `KES ${analyticsData.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                </p>
+              </div>
+              {/* <div className="p-5 bg-blue-50 rounded-xl text-blue-600 border border-blue-100 shadow-sm flex items-center justify-center">
+                <span className="text-xl font-black font-mono">KES</span>
+              </div> */}
+              <div className="p-5 bg-green-50 rounded-xl text-green-600 border border-green-100 shadow-sm flex items-center justify-center">
+                <HandCoins className="h-10 w-10" />
+              </div>
+            </div>
+            <p className="text-xs text-gray-400 mt-4 flex items-center gap-1">
+              <span className="font-semibold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">Financials</span>
+              accumulated across all bounds
             </p>
           </CardContent>
         </Card>
