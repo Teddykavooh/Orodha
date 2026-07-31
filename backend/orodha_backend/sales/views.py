@@ -30,7 +30,7 @@ class SaleLogViewSet(viewsets.ModelViewSet):
     linked BookItem(Product) and salesperson in the same query.
     """
 
-    queryset = SaleLog.objects.select_related("book_item", "salesperson").order_by("id")
+    queryset = SaleLog.objects.select_related("book_item", "salesperson", "hub").order_by("id")
     serializer_class = SaleLogSerializer
     permission_classes = [permissions.AllowAny] # Temporary debug rule
 
@@ -100,6 +100,13 @@ class SaleLogViewSet(viewsets.ModelViewSet):
         if book_item.quantity < sale_qty:
             return Response({"error": f"Insufficient stock. Only {book_item.quantity} available."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Compute extended pricing
+        extended_sale_price = book_item.product.base_price * sale_qty
+
+        # Retain references before row is potentially deleted from stock table
+        historical_product = book_item.product
+        historical_hub = book_item.current_hub
+
         # Safe Counter Reduction Strategy
         book_item.quantity -= sale_qty
         
@@ -112,17 +119,19 @@ class SaleLogViewSet(viewsets.ModelViewSet):
         # Commit Sale Entry Record securely into your database ledger
         sale_log = serializer.save(
             salesperson=user,
-            product=book_item.product,
-            hub=book_item.current_hub
+            product=historical_product,
+            hub=historical_hub,
+            quantity=sale_qty,
+            sale_price=extended_sale_price
         )
 
         # Audit Trail Logging: Append an operations tracking point into your Movement ledger
         InventoryMovement.objects.create(
             product=book_item.product,
-            book_item=book_item,
+            book_item=book_item if book_item.id else None,
             quantity=sale_qty,
             action="SALE",
-            from_hub=book_item.current_hub if book_item.id else None, # Safely evaluates context metrics
+            from_hub=historical_hub,
             to_hub=None,
             performed_by=getattr(user, "userprofile", None)
         )

@@ -20,13 +20,14 @@ export const fetchSales = createAsyncThunk('sales/fetchSales', async (_, thunkAP
 //   const res = await tenantApi.post('/sales/', saleData)
 //   return res.data
 // })
-export const createSale = createAsyncThunk('sales/createSale', async ({ bookItemId, bookItemSeller, salePrice }, thunkAPI) => {
+export const createSale = createAsyncThunk('sales/createSale', async ({ bookItemId, bookItemSeller, salePrice, bookItemCount }, thunkAPI) => {
   // Maps variables directly onto your Django serializer keys
   // console.log("Sale data: ", { book_item: bookItemId, salesperson: bookItemSeller, sale_price: salePrice });
   const res = await tenantApi.post('/sales/', {
     book_item: bookItemId,
     salesperson: bookItemSeller,
-    sale_price: salePrice
+    sale_price: salePrice,
+    quantity: bookItemCount
   });
   return res.data;
 });

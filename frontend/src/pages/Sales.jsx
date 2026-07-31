@@ -37,10 +37,8 @@ export default function Sales() {
   const sales = useSelector(state => state.sales.items);
   const salesStatus = useSelector(state => state.sales.status);
   const salesError = useSelector(state => state.sales.error);
-  
   const inventory = useSelector(state => state.inventory.items);
   const inventoryStatus = useSelector(state => state.inventory.status);
-  
   const authUser = useSelector(state => state.auth.user);
 
   // Component UI State Management
@@ -48,6 +46,7 @@ export default function Sales() {
   const [loading, setLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [salePrice, setSalePrice] = useState("");
+  const [saleQuantity, setSaleQuantity] = useState(1);
 
   // Fetch transaction data and active inventory logs on mount
   useEffect(() => {
@@ -60,9 +59,10 @@ export default function Sales() {
    */
   // console.log("Inventory: ", inventory);
   const availableInventory = inventory.filter((item) => {
-    // console.log("Item: ", item);
+    // console.log("Item: ", item.quantity);
     // Rule: Item cannot be marked as already sold
-    if (item.status === "SOLD") return false;
+    // if (item.status === "SOLD") return false;
+    if (item.quantity < 1) return false;
 
     return true;
   });
@@ -95,7 +95,7 @@ export default function Sales() {
     const message = `Are you sure you want to finalize this sale?\n\n` +
                     `📦 Product: ${selectedItem.product_title}\n` +
                     `🔢 Serial: ${selectedItem.serial_number || "N/A"}\n` +
-                    `💰 Final Price: KES ${Number(salePrice).toLocaleString(undefined, { minimumFractionDigits: 2 })}\n\n` +
+                    `💰 Final Price: KES ${(Number(salePrice)*saleQuantity).toLocaleString(undefined, { minimumFractionDigits: 2 })}\n\n` +
                     `This action will instantly mark the item as SOLD and update the ledger.`;
 
     if (!window.confirm(message)) {
@@ -108,6 +108,7 @@ export default function Sales() {
         bookItemId: selectedItem.id,
         salePrice: salePrice,
         bookItemSeller: authUser.id,
+        bookItemCount: saleQuantity,
       })).unwrap();
       
       // Refresh local copy arrays to accurately clear out newly sold units
@@ -204,11 +205,22 @@ export default function Sales() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Final Sale Price (KES) *</label>
               <Input
                 type="number"
-                step="0.01"
+                step="0.50"
                 placeholder="Enter agreed customer price"
                 value={salePrice}
                 onChange={(e) => setSalePrice(e.target.value)}
                 disabled={loading}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Volume Count</label>
+              <Input
+                type="number"
+                placeholder="Number of Items to sell."
+                className="w-full border rounded p-2 text-sm font-semibold"
+                value={saleQuantity}
+                onChange={(e) => setSaleQuantity(e.target.value)}
                 required
               />
             </div>
