@@ -103,13 +103,16 @@ export default function Dashboard() {
     filteredSales.forEach(sale => {
       const price = Number(sale.sale_price) || 0
       
+      // Get sale quantity
+      const saleQty = Number(sale.quantity) || 1
+
       // Grouping by Merchandiser Name
       const agentName = sale.salesperson_name || `Agent #${sale.salesperson}`
       if (!agentMap[agentName]) {
         agentMap[agentName] = { name: agentName, revenue: 0, count: 0 }
       }
       agentMap[agentName].revenue += price
-      agentMap[agentName].count += 1
+      agentMap[agentName].count += saleQty
 
       // Grouping by Operating Hub
       const matchedUser = users.find(u => u.id === sale.salesperson)
@@ -118,7 +121,7 @@ export default function Dashboard() {
         hubMap[hubName] = { name: hubName, revenue: 0, count: 0 }
       }
       hubMap[hubName].revenue += price
-      hubMap[hubName].count += 1
+      hubMap[hubName].count += saleQty
 
       // Grouping by Product Title Velocity
       const itemTitle = sale.product_title || "Unknown Item"
@@ -126,12 +129,15 @@ export default function Dashboard() {
         productMap[itemTitle] = { title: itemTitle, revenue: 0, count: 0 }
       }
       productMap[itemTitle].revenue += price
-      productMap[itemTitle].count += 1
+      productMap[itemTitle].count += saleQty
     })
 
     // D. Convert to Arrays, Sort Descending, and Extract Top 5 Performance Arrays
+    // Compute total units sold across the filtered transaction array
+    const totalPhysicalUnitsSold = filteredSales.reduce((sum, sale) => sum + (Number(sale.quantity) || 1), 0);
+    
     return {
-      filteredSalesCount: filteredSales.length,
+      filteredSalesCount: totalPhysicalUnitsSold,
       merchandisers: Object.values(agentMap).sort((a, b) => b.revenue - a.revenue).slice(0, 5),
       hubs: Object.values(hubMap).sort((a, b) => b.revenue - a.revenue).slice(0, 5),
       products: Object.values(productMap).sort((a, b) => b.count - a.count).slice(0, 5)
@@ -245,7 +251,7 @@ export default function Dashboard() {
               <div>
                 <p className="text-sm font-medium text-gray-500 mb-1">Total Products</p>
                 <p className="text-3xl font-bold text-gray-900 tracking-tight">
-                  {productsStatus === 'loading' ? '-' : products.length}
+                  {productsStatus === 'loading' ? '-' : analyticsData.filteredSalesCount}
                 </p>
               </div>
               {/* Indigo/Purple Colored Badge Indicator Container */}
@@ -528,6 +534,7 @@ export default function Dashboard() {
                     <TableHead>Timestamp</TableHead>
                     <TableHead>Product Item</TableHead>
                     <TableHead>Merchandiser</TableHead>
+                    <TableHead>Count</TableHead>
                     <TableHead className="text-right">Price</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -561,6 +568,13 @@ export default function Dashboard() {
                         </span>
                         <span className="text-xs text-gray-400 font-mono block">
                           Profile Key: #{s.salesperson}
+                        </span>
+                      </TableCell>
+
+                      {/* Display sale count of the item */}
+                      <TableCell className="text-sm text-gray-700">
+                        <span className="font-medium text-gray-900">
+                          {s.quantity}
                         </span>
                       </TableCell>
                       

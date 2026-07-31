@@ -17,5 +17,5 @@ class SaleLogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SaleLog
-        fields = ["id", "book_item", "book_serial", "product_title", "salesperson", "salesperson_name", "sale_price", "sold_at"]
+        fields = ["id", "book_item", "book_serial", "product_title", "salesperson", "salesperson_name", "sale_price", "sold_at", "quantity"]
         read_only_fields = ["id", "sold_at"]
