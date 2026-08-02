@@ -93,12 +93,10 @@ class SaleLogViewSet(viewsets.ModelViewSet):
         # Strict Geographical Guard Check
         if getattr(user, "role", None) != "ADMIN":
             user_hub_id = getattr(user, "hub_id", None)
+            if not user_hub_id:
+                return Response({"error": "Your staff account is not assigned to any active hub."}, status=status.HTTP_403_FORBIDDEN)
             if book_item.current_hub_id != user_hub_id:
                 return Response({"error": "You cannot sell stock assigned to another hub location."}, status=status.HTTP_403_FORBIDDEN)
-
-        # 3. Verify stock availability
-        if book_item.quantity < sale_qty:
-            return Response({"error": f"Insufficient stock. Only {book_item.quantity} available."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Compute extended pricing
         extended_sale_price = book_item.product.base_price * sale_qty
@@ -106,15 +104,6 @@ class SaleLogViewSet(viewsets.ModelViewSet):
         # Retain references before row is potentially deleted from stock table
         historical_product = book_item.product
         historical_hub = book_item.current_hub
-
-        # Safe Counter Reduction Strategy
-        book_item.quantity -= sale_qty
-        
-        if book_item.quantity == 0:
-            # Wipe item reference container out of existence to block negative overflow sales loops
-            book_item.delete()
-        else:
-            book_item.save()
 
         # Commit Sale Entry Record securely into your database ledger
         sale_log = serializer.save(
@@ -135,6 +124,15 @@ class SaleLogViewSet(viewsets.ModelViewSet):
             to_hub=None,
             performed_by=getattr(user, "userprofile", None)
         )
+
+        # Safe Counter Reduction Strategy
+        book_item.quantity -= sale_qty
+        
+        if book_item.quantity == 0:
+            # Wipe item reference container out of existence to block negative overflow sales loops
+            book_item.delete()
+        else:
+            book_item.save()
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

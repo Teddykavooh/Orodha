@@ -20,16 +20,20 @@ export const fetchSales = createAsyncThunk('sales/fetchSales', async (_, thunkAP
 //   const res = await tenantApi.post('/sales/', saleData)
 //   return res.data
 // })
-export const createSale = createAsyncThunk('sales/createSale', async ({ bookItemId, bookItemSeller, salePrice, bookItemCount }, thunkAPI) => {
+export const createSale = createAsyncThunk('sales/createSale', async ({ bookItemId, bookItemSeller, salePrice, bookItemCount }, { rejectWithValue }) => {
   // Maps variables directly onto your Django serializer keys
   // console.log("Sale data: ", { book_item: bookItemId, salesperson: bookItemSeller, sale_price: salePrice });
-  const res = await tenantApi.post('/sales/', {
-    book_item: bookItemId,
-    salesperson: bookItemSeller,
-    sale_price: salePrice,
-    quantity: bookItemCount
-  });
-  return res.data;
+  try {
+    const res = await tenantApi.post('/sales/', {
+      book_item: bookItemId,
+      salesperson: bookItemSeller,
+      sale_price: salePrice,
+      quantity: bookItemCount
+    });
+    return res.data;
+  } catch (err) {
+    return rejectWithValue(err.response?.data || { error: "Network communication failure" });
+  }
 });
 
 /**
@@ -78,7 +82,7 @@ const salesSlice = createSlice({
         state.items.unshift(action.payload) // prepend to show recent first
       })
       .addCase(createSale.rejected, (state, action) => {
-        state.error = action.error.message
+        state.error = action.payload.error
       })
       // Update sale
       .addCase(updateSale.fulfilled, (state, action) => {

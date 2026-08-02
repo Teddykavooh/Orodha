@@ -114,8 +114,8 @@ export default function Sales() {
       // Refresh local copy arrays to accurately clear out newly sold units
       dispatch(fetchInventory());
       handleCloseModal();
-    } catch (err) {
-      alert(err?.message || "Failed to process book sale transaction.");
+    } catch (backendError) {
+      alert(backendError?.error || "Failed to process book sale transaction.");
     } finally {
       setLoading(false);
     }
