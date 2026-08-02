@@ -59,9 +59,6 @@ export default function Sales() {
    */
   // console.log("Inventory: ", inventory);
   const availableInventory = inventory.filter((item) => {
-    // console.log("Item: ", item.quantity);
-    // Rule: Item cannot be marked as already sold
-    // if (item.status === "SOLD") return false;
     if (item.quantity < 1) return false;
 
     return true;

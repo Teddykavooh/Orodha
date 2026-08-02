@@ -218,7 +218,7 @@ export default function Inventory() {
               onChange={(e) =>
                 handleProductSelectionChange(e.target.value)
               }
-              requireed
+              required
             >
               <option value="">
                 Select Product

@@ -47,4 +47,5 @@ class SaleLog(models.Model):
 
     def __str__(self):
         hub_name = self.hub.name if self.hub else "Main Warehouse"
-        return f"Sale: {self.quantity}x {self.product.title} at {hub_name} by {self.salesperson}"
+        product_title = self.product.title if self.product else "Unknown Product"
+        return f"Sale: {self.quantity}x {product_title} at {hub_name} by {self.salesperson}"

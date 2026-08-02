@@ -128,11 +128,7 @@ class SaleLogViewSet(viewsets.ModelViewSet):
         # Safe Counter Reduction Strategy
         book_item.quantity -= sale_qty
         
-        if book_item.quantity == 0:
-            # Wipe item reference container out of existence to block negative overflow sales loops
-            book_item.delete()
-        else:
-            book_item.save()
+        book_item.save()
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
