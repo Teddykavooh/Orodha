@@ -5,7 +5,9 @@ from django.db import models
 class SaleLog(models.Model):
     book_item  = models.ForeignKey(
         "inventory.BookItem",
-        on_delete=models.PROTECT
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
     )
 
     product = models.ForeignKey(
