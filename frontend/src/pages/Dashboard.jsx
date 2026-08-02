@@ -203,7 +203,8 @@ export default function Dashboard() {
       </div>
       
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+      {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-2"> */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 min-[1659px]:grid-cols-2 gap-4">
         {/* Total Sales Card */}
         <Card className="overflow-hidden hover:shadow-md transition-shadow">
           <CardContent className="pt-6">
@@ -217,7 +218,10 @@ export default function Dashboard() {
               {/* Green Colored Badge Indicator Container */}
               {/* <div className="p-3 bg-green-50 rounded-lg text-green-600 border border-green-100 shadow-sm"> */}
               <div className="p-5 bg-green-50 rounded-xl text-green-600 border border-green-100 shadow-sm flex items-center justify-center">
-                <TrendingUp className="h-10 w-10" />
+                <TrendingUp
+                  style={{ height: '3vw', width: '3vw' }} 
+                  className="min-h-[24px] min-w-[24px] max-h-[48px] max-w-[48px]"
+                />
               </div>
             </div>
             <p className="text-xs text-gray-400 mt-4 flex items-center gap-1">
