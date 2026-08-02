@@ -278,7 +278,7 @@ export default function Dashboard() {
                   {timeRange === 'all' ? 'Total Gross Revenue' : 'Filtered Revenue Return'}
                 </p>
                 <p className="text-3xl font-bold text-gray-900 tracking-tight">
-                  {salesStatus === 'loading' ? '-' : `KES ${analyticsData.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                  {salesStatus === 'loading' ? '-' : `KES ${(analyticsData.totalRevenue || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                 </p>
               </div>
               {/* <div className="p-5 bg-blue-50 rounded-xl text-blue-600 border border-blue-100 shadow-sm flex items-center justify-center">
