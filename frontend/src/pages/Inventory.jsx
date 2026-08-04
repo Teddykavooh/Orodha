@@ -126,10 +126,11 @@ export default function Inventory() {
     };
 
     try {
-      await dispatch(allocateInventory(payload)).unwrap();
+      const result = await dispatch(allocateInventory(payload)).unwrap();
       resetAllocateForm();
       setIsAllocateOpen(false);
-      alert("Inventory successfully allocated!");
+      dispatch(fetchInventory()); 
+      alert(result?.message || "Inventory successfully allocated!");
     } catch (err) {
       alert(err?.error || "Allocation failed");
     }
