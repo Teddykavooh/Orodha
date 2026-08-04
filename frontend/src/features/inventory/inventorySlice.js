@@ -34,17 +34,21 @@ export const deleteInventoryItem = createAsyncThunk(
   }
 );
 
-export const allocateInventory = createAsyncThunk(
-  "inventory/allocateInventory",
-  async (allocationData) => {
-    // Points exactly to custom @action url path
-    const res = await api.post("/book-items/allocate/", allocationData);
+export const allocateInventory = createAsyncThunk("inventory/allocateInventory",
+  async (allocationData, {rejectWithValue}) => {
+    try {
+      // Points exactly to custom @action url path
+      const res = await api.post("/book-items/allocate/", allocationData);
 
-    // Pass server message
-    return {
-      message: res.data.message,
-      transferDetails: allocationData
-    };
+      // Pass server message
+      return {
+        message: res.data.message,
+        transferDetails: allocationData
+      };
+      // return res.data
+    } catch (err) {
+      return rejectWithValue(err.response?.data || { error: "Network communication failure" });
+    }
   }
 )
 
@@ -153,6 +157,11 @@ const inventorySlice = createSlice({
           };
           state.items.unshift(newBatchRow);
         }
+      })
+
+      .addCase(allocateInventory.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload.error;
       });
   },
 });

@@ -129,9 +129,9 @@ export default function Inventory() {
       await dispatch(allocateInventory(payload)).unwrap();
       resetAllocateForm();
       setIsAllocateOpen(false);
-      alert("Inventory successfully allocated across nodes!");
+      alert("Inventory successfully allocated!");
     } catch (err) {
-      alert(err?.message || "Allocation Transfer failed");
+      alert(err?.error || "Allocation failed");
     }
   }
 
@@ -244,6 +244,7 @@ export default function Inventory() {
               onChange={(e) =>
                 setSerialNumber(e.target.value)
               }
+              readOnly
             />
           </div>
 
