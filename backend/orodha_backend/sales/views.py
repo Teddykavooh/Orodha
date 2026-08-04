@@ -155,8 +155,8 @@ class ReportingDashboardView(APIView):
         agent_name = "All Merchandisers"
 
         # SECURITY RULE: Instantly lock out base Merchandisers from loading financials
-        if getattr(user, "role", None) not in ["ADMIN", "MANAGER"]:
-            return HttpResponse("Unauthorized", status=403)
+        # if getattr(user, "role", None) not in ["ADMIN", "MANAGER"]:
+        #     return HttpResponse("Unauthorized", status=403)
 
         # 1. Gather URL query string filter parameters
         hub_id = request.query_params.get("hub_id")

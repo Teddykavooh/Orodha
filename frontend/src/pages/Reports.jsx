@@ -29,12 +29,29 @@ export default function Reports() {
     try {
       // Assemble structured URL query properties matching backend param requirements
       const params = new URLSearchParams();
-      if (selectedHub) params.append("hub_id", selectedHub);
-      if (selectedAgent) params.append("merchandiser_id", selectedAgent);
+
+      if (authUser?.role === "ADMIN") {
+        if (selectedHub) params.append("hub_id", selectedHub);
+      } else {
+        if (authUser?.hub_id) {
+          params.append("hub_id", authUser.hub_id);
+        } else if (authUser?.hub) {
+          // Fallback
+          params.append("hub_id", authUser.hub);
+        }
+      }
+
+      if (authUser?.role === "MERCHANDISER") {
+        params.append("merchandiser_id", authUser.id);
+      } else {
+        if (selectedAgent) params.append("merchandiser_id", selectedAgent);
+      }
+
       if (startDate) params.append("start_date", startDate);
       if (endDate) params.append("end_date", endDate);
 
       const res = await tenantApi.get(`/sales/reporting/?${params.toString()}`);
+      
       setReportData(res.data);
     } catch (err) {
       alert("Failed to compute reporting statistics.");
@@ -45,10 +62,20 @@ export default function Reports() {
 
   // Auto-run report initialization on mount
   useEffect(() => {
+
+    // Avoid hitting endpoints until core auth profile has finished loading
+    if (!authUser) return;
+
+    if (authUser.role === "ADMIN") {
+      dispatch(fetchUsers());
+      dispatch(fetchHubs());
+    }
+  }, [dispatch, authUser]);
+
+  useEffect(() => {
+    if (!authUser) return;
     fetchGeneratedReport();
-    dispatch(fetchUsers())
-    dispatch(fetchHubs());
-  }, [dispatch]);
+  }, [selectedHub, selectedAgent, startDate, endDate, authUser]);
 
   /**
    * Securely streams and downloads report files through your authenticated tenantApi instance
@@ -105,25 +132,28 @@ export default function Reports() {
         <CardContent className="pt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
           {/* Conditional Admin Hub Filter Control Select Menu */}
           {authUser?.role === "ADMIN" && (
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Hub Location</label>
-              <select value={selectedHub} onChange={(e) => setSelectedHub(e.target.value)} className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
-                <option value="">All Hubs</option>
-                {hubs.map(h => <option key={h.id} value={h.id}>{h.name}</option>)}
-              </select>
-            </div>
+            <>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Hub Location</label>
+                <select value={selectedHub} onChange={(e) => setSelectedHub(e.target.value)} className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                  <option value="">All Hubs</option>
+                  {hubs.map(h => <option key={h.id} value={h.id}>{h.name}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Merchandiser Agent</label>
+                <select value={selectedAgent} onChange={(e) => setSelectedAgent(e.target.value)} className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                  <option value="">All Staff</option>
+                  {/* {users.filter(u => u.role === "MERCHANDISER").map(u => ( */}
+                  {users.map(u => (
+                    <option key={u.id} value={u.id}>{u.username}</option>
+                  ))}
+                </select>
+              </div>
+            </>
           )}
 
-          <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Merchandiser Agent</label>
-            <select value={selectedAgent} onChange={(e) => setSelectedAgent(e.target.value)} className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
-              <option value="">All Staff</option>
-              {/* {users.filter(u => u.role === "MERCHANDISER").map(u => ( */}
-              {users.map(u => (
-                <option key={u.id} value={u.id}>{u.username}</option>
-              ))}
-            </select>
-          </div>
 
           <div>
             <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Start Date</label>
@@ -150,7 +180,7 @@ export default function Reports() {
             <CardHeader><CardTitle className="text-sm font-medium text-gray-500 uppercase">Gross Revenue Balance</CardTitle></CardHeader>
             <CardContent className="flex justify-between items-center">
               <span className="text-4xl font-extrabold text-gray-900">
-                KES {Number(reportData.summary.total_revenue).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                KES {(Number(reportData?.summary?.total_revenue) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
               </span>
               <div className="p-3 bg-green-50 rounded-xl text-green-600"><TrendingUp className="h-6 w-6" /></div>
             </CardContent>
