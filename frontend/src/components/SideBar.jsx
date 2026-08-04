@@ -44,7 +44,8 @@ export default function Sidebar() {
   if (!user) return null;
 
   return (
-    <aside className="w-64 min-h-screen bg-white border-r border-gray-300 flex flex-col justify-between hidden md:flex sticky top-0">
+    // <aside className="w-64 min-h-screen bg-white border-r border-gray-300 flex flex-col justify-between hidden md:flex sticky top-0">
+    <aside className="w-full md:w-1/5 max-w-[260px] min-w-[200px] min-h-screen bg-white border-r border-gray-300 flex flex-col justify-between hidden md:flex sticky top-0 transition-all duration-300">
       <div className="flex flex-col space-y-6">
         <div className="flex flex-col w-full border-b border-gray-200">
           {/* Extended Branded Logo Banner Header */}
