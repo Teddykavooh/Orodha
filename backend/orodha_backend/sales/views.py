@@ -195,7 +195,7 @@ class ReportingDashboardView(APIView):
         # DEFAULT APP SUMMARY METRICS (JSON API CALL FALLBACK)
         metrics = queryset.aggregate(
             total_revenue=Sum("sale_price"),
-            total_items_sold=Count("id")
+            total_items_sold=Sum("quantity")
         )
 
         total_revenue = metrics["total_revenue"] or 0
@@ -206,7 +206,7 @@ class ReportingDashboardView(APIView):
 
         top_merchandisers = (
             queryset.values("salesperson__username")
-            .annotate(revenue=Sum("sale_price"), count=Count("id"))
+            .annotate(revenue=Sum("sale_price"), count=Sum("quantity"))
             .order_by("-revenue")[:5]
         )
 
